@@ -1,0 +1,82 @@
+/**
+ * Owl Carousel v2.2.1
+ * Copyright 2013-2017 David Deutsch
+ * Licensed under  ()
+ */
+.owl-item.active .item_{
+  position: relative;
+    z-index: 1;
+}
+.trending_now .owl-stage-outer{
+    height: 500px;
+    padding-top: 50px;
+    overflow-x: hidden;
+}
+.owl-item.active.center .item_ {
+    position: absolute;
+    left: -20px;
+    right: -20px;
+    margin-left:auto;
+    margin-right: auto;
+    margin-top: -11px;
+    z-index: 9999999;
+    text-align: center;
+}
+.owl-dot {
+    background: #ffffff;
+    border: solid 1px #791e47;
+    width: 10px;
+    height: 10px;
+    margin: 2px;
+    border-radius: 100%;
+    display: inline-block;
+}
+.owl-dot.active{
+    background: #791e47;
+}
+.owl-dots {
+    text-align: center;
+    margin-top: 35px;
+}
+.owl-nav {
+    width: 36%;
+    margin: auto;
+    position: absolute;
+    top: 20%;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    color: #fff;
+    font-size: 50px;
+}
+.trending_now .owl-nav {
+    width: auto;
+    margin: auto;
+    position: absolute;
+top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    color: #fff;
+    font-size: 50px;
+}
+.trending_now .owl-prev {
+    top: 116px;
+    float: left;
+    position: absolute;
+    left: 33%;
+}
+.owl-next {
+    float: right;
+    position: absolute;
+    right: 0;
+}
+.trending_now .owl-next {
+    top: 116px;
+    float: right;
+    position: absolute;
+    right: 33%;
+}
+.owl-carousel,.owl-carousel .owl-item{-webkit-tap-highlight-color:transparent;position:relative}.owl-carousel{display:none;width:100%;z-index:1}.owl-carousel .owl-stage{position:relative;-ms-touch-action:pan-Y;-moz-backface-visibility:hidden}.owl-carousel .owl-stage:after{content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0}.owl-carousel .owl-stage-outer{position:relative;overflow:hidden;-webkit-transform:translate3d(0,0,0)}.owl-carousel .owl-item,.owl-carousel .owl-wrapper{-webkit-backface-visibility:hidden;-moz-backface-visibility:hidden;-ms-backface-visibility:hidden;-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0)}.owl-carousel .owl-item{min-height:1px;float:left;-webkit-backface-visibility:hidden;-webkit-touch-callout:none}.owl-carousel .owl-item img{display:block;max-width:100%}.owl-carousel .owl-dots.disabled,.owl-carousel .owl-nav.disabled{display:block}.no-js .owl-carousel,.owl-carousel.owl-loaded{display:block}.owl-carousel .owl-dot,.owl-carousel .owl-nav .owl-next,.owl-carousel .owl-nav .owl-prev{cursor:pointer;cursor:hand;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.owl-carousel.owl-loading{opacity:0;display:block}.owl-carousel.owl-hidden{opacity:0}.owl-carousel.owl-refresh .owl-item{visibility:hidden}.owl-carousel.owl-drag .owl-item{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.owl-carousel.owl-grab{cursor:move;cursor:grab}.owl-carousel.owl-rtl{direction:rtl}.owl-carousel.owl-rtl .owl-item{float:right}.owl-carousel .animated{animation-duration:1s;animation-fill-mode:both}.owl-carousel .owl-animated-in{z-index:0}.owl-carousel .owl-animated-out{z-index:1}.owl-carousel .fadeOut{animation-name:fadeOut}@keyframes fadeOut{0%{opacity:1}100%{opacity:0}}.owl-height{transition:height .5s ease-in-out}.owl-carousel .owl-item .owl-lazy{opacity:0;transition:opacity .4s ease}.owl-carousel .owl-item img.owl-lazy{transform-style:preserve-3d}.owl-carousel .owl-video-wrapper{position:relative;height:100%;background:#000}.owl-carousel .owl-video-play-icon{position:absolute;height:80px;width:80px;left:50%;top:50%;margin-left:-40px;margin-top:-40px;background:url(owl.video.play.png) no-repeat;cursor:pointer;z-index:1;-webkit-backface-visibility:hidden;transition:transform .1s ease}.owl-carousel .owl-video-play-icon:hover{-ms-transform:scale(1.3,1.3);transform:scale(1.3,1.3)}.owl-carousel .owl-video-playing .owl-video-play-icon,.owl-carousel .owl-video-playing .owl-video-tn{display:none}.owl-carousel .owl-video-tn{opacity:0;height:100%;background-position:center center;background-repeat:no-repeat;background-size:contain;transition:opacity .4s ease}.owl-carousel .owl-video-frame{position:relative;z-index:1;height:100%;width:100%}
+
+.owl-item img{ margin: 0 auto}

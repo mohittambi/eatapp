@@ -61,8 +61,8 @@ class FrontController extends Controller
                 {
                     $email = $request->email;
                     $password = bcrypt($request->password);
-                    $user = User::where('email',$email)->where('role','F')->first();
-                  
+                    $user = User::where('email',$email)->where('role','C')->where('verified','1')->first();
+					
                     if($user && Hash::check($request->password, $user->password))
                     {
                         // Session::put('AdminLoggedIn', ['user_id'=>$user->id,'userData'=> $user]);

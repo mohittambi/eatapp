@@ -73,7 +73,7 @@ if (! function_exists('mailSend')) {
                 $verifyUser->token = str_random(40);
                 $verifyUser->save();
                 $data['token'] = $verifyUser->token;
-                $data['registration_url'] = 'http://localhost/eatapp-new/email-confirmation/verify/';
+                $data['registration_url'] = url('/email-confirmation/verify').'/';
                 Mail::send('emails.front_signup', ['data' => $data], function($message) use ($data)
                 {
                     $message->from('oliver7415@googlemail.com', 'EATAPP');

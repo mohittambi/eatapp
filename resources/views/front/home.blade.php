@@ -119,33 +119,34 @@
             <div class="col-md-10 col-md-offset-1 whtBg animated fadeInRight">
                 <h2>GET IN TOUCH</h2>
                 <hr class="border-line">
-                <p class="tag">Have feedback, suggestion, or any thought about our app? Feel free to contact us anytime,<br/>
-                    we will get back to you in 24 hours.</p>
-                <div class="col-md-6 col-sm-6">
-                    @include('message')
-                    {!! Form::model(null, ['method' => 'POST','route' => ['front.post.contactForm'],'class'=>'validate','autocomplete'=>'off','id'=>'contact-form']) !!}
-                    {{ csrf_field() }}
-                    @include('message')
-                    <div class="form-group">
-                        {!! Form::text('name', null, ['class'=>'form-control','placeholder'=>'Name*','autocomplete'=>'off','required'=>true]) !!}
-                    </div>
-                    <div class="form-group">
-                        {!! Form::email('email', null, ['class'=>'form-control','placeholder'=>'Email*','autocomplete'=>'off','required'=>true]) !!}
-                    </div>
-                    <div class="form-group">
-                        {!! Form::text('phone_number', null, ['class'=>'form-control','placeholder'=>'Phone Number*','autocomplete'=>'off','required'=>true]) !!}
-                    </div>
-                </div>
-                <div class="col-md-6  col-sm-6">
-
-                    <div class="form-group">
-                        <!-- <textarea class="form-control" placeholder="Comment*" style="min-height: 187px;"></textarea> -->
-                        {!! Form::textarea('comment', null, ['class'=>'form-control','placeholder'=>'Comment*','autocomplete'=>'off','required'=>true]) !!}
-                    </div>
-                </div>
-                <div class="col-md-12 text-center">
-                    <button type="submit" class="btn btn-primary">SEND MESSAGE</button>
-                </div>
+                <p class="tag">
+					Have feedback, suggestion, or any thought about our app? Feel free to contact us anytime,<br/>
+                    we will get back to you in 24 hours.
+                </p>
+				{!! Form::model(null, ['method' => 'POST','route' => ['front.post.contactForm'],'class'=>'validate','autocomplete'=>'off','id'=>'contact-form']) !!}
+				{{ csrf_field() }}
+				@include('message')
+					<div class="col-md-6 col-sm-6">
+						<div class="form-group">
+							{!! Form::text('name', null, ['class'=>'form-control','placeholder'=>'Name*','autocomplete'=>'off','required'=>true]) !!}
+						</div>
+						<div class="form-group">
+							{!! Form::email('email', null, ['class'=>'form-control','placeholder'=>'Email*','autocomplete'=>'off','required'=>true]) !!}
+						</div>
+						<div class="form-group">
+							{!! Form::text('phone_number', null, ['class'=>'form-control','placeholder'=>'Phone Number*','autocomplete'=>'off','required'=>true]) !!}
+						</div>
+					</div>
+					<div class="col-md-6  col-sm-6">
+						<div class="form-group">
+							<!-- <textarea class="form-control" placeholder="Comment*" style="min-height: 187px;"></textarea> -->
+							{!! Form::textarea('comment', null, ['class'=>'form-control','placeholder'=>'Comment*','autocomplete'=>'off','required']) !!}
+						</div>
+					</div>
+					<div class="col-md-12 text-center">
+						<button type="submit" class="btn btn-primary">SEND MESSAGE</button>
+					</div>
+                </form>
             </div>
         </div>
     </div>

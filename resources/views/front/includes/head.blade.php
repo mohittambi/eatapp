@@ -24,7 +24,7 @@
     <link href="{{asset('assets/front/css/animations.css')}}" rel="stylesheet" type="text/css">
     <link href="{{asset('assets/front/css/slider.css')}}" rel="stylesheet">
     <link href="{{asset('assets/front/css/main.css')}}" rel="stylesheet">
-    <link rel="shortcut icon" type="image/png" href="img/favicon.png"/>
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_temp.png') }}"/>
 
        
        <!-- @yield('uniquepagestyle') -->

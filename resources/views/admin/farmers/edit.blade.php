@@ -66,7 +66,7 @@
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="category">Category</label>
                 <div class="col-md-9 col-sm-9 col-xs-12">
                   
-                  {!! Form::select('category', $categoryList, $user->farmerDetails->categories, ['class'=>'form-control col-md-7 col-xs-12','placeholder'=>'Category','id'=>'category']) !!}                      
+                  {!! Form::select('categories', $categoryList, $selectedCatList, ['class'=>'form-control col-md-7 col-xs-12','multiple'=>'multiple','placeholder'=>'Category','name'=>'categories[]','id'=>'category']) !!}
                 </div>
               </div>
 

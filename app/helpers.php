@@ -88,6 +88,32 @@ if (! function_exists('mailSend')) {
                 return false;            
             }
         }
+        else if ($data['mail_type'] == 'app_signup'){
+            try 
+            {
+
+                $verifyUser = new VerifyUser();
+
+                $verifyUser->user_id = $data['user_id'];
+                $verifyUser->token = str_random(40);
+                $verifyUser->save();
+                $data['token'] = $verifyUser->token;
+                $data['registration_url'] = url('/email-confirmation/verify').'/';
+                Mail::send('emails.app_signup', ['data' => $data], function($message) use ($data)
+                {
+                    $message->from('oliver7415@googlemail.com', 'EATAPP');
+                    $message->to( $data['email'] )->subject("Signup Requst From App" );
+
+                }); 
+                Session::flash('success', 'Confirmation link successfully sent on your email.');
+                //return redirect()->back()->withInput();
+                $message['success'] = 'Confirmation link successfully sent on your email.';
+                return $message['success'];
+            } catch (Exception $ex) {
+                dd($ex);
+                return false;            
+            }
+        }
         else {
 
             return true;

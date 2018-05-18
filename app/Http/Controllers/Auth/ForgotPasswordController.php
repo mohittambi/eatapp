@@ -48,20 +48,21 @@ class ForgotPasswordController extends Controller
             $this->validateEmail($request);
             $validator = Validator::make($request->all(), ['email' => 'required']);
             if ($validator->fails()) {
-                $response['status'] = "false";
+                $response['verified'] = "false";
                 $response['message'] = $validator->messages();
                 $new_arr = $validator->messages()->toArray();
                 $value = reset($new_arr);
                 $response['message'] = $value[0];
                 return $response;
             } else {
-                $userdata = ['email' => $data['email'], 'status' => 1];
-                $user = User::where($userdata)->first();
+                $userdata = ['email' => $data['email']];
+                $user = User::where('email', $data['email'])->where('verified','1')->first();
+                //dd($user);
                 if (!$user) {
-                    $response['status'] = "false";
-                    $response['message'] = "Email not exist.";
+                    $response['verified'] = "false";
+                    $response['message'] = "Email does not exist.";
                     //return $response;
-                    Session::flash('success', 'Email not exist.');
+                    Session::flash('success', 'Email does not exist.');
                     return redirect()->back()->withInput();
                 } else { 
                     $user = User::find($user->id);

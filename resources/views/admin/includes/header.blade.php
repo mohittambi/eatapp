@@ -15,8 +15,8 @@
                     <!--li><a href="javascript:;"> Profile</a></li>
                    
                     <li><a href="javascript:;">Help</a></li-->
-                      <li><a href="{!! route('admin.profile')!!}"><i class="fa fa-user pull-right"></i> My Profile</a></li>
-                     <li><a href="{!! route('admin.my-settings')!!}"><i class="fa fa-cogs pull-right"></i> Settings</a></li>
+                    <li><a href="{!! route('admin.profile')!!}"><i class="fa fa-user pull-right"></i> My Profile</a></li>
+                    <li><a href="{!! route('admin.my-settings')!!}"><i class="fa fa-cogs pull-right"></i> Settings</a></li>
                     <li><a href="{!! route('admin.logout')!!}"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
 
 

@@ -492,7 +492,7 @@ class UserController extends Controller
                 'country_id' => 'required',
                 'dob' => 'required|date',
                 'email' => 'required|email|max:255|unique:users,email,' . $row->id,
-                'zipcode' => 'required|max:999999|integer',  
+                // 'zipcode' => 'required|max:999999|integer',  
             ];
             $validator = Validator::make($request->all(),$validatorRules);
             if ($validator->fails()) 
@@ -509,7 +509,7 @@ class UserController extends Controller
                     $row->country_id=$request->country_id;
                     $row->dob=date('Y-m-d', $dob);
                     $row->email=$request->email;
-                    $row->zipcode=$request->zipcode;
+                    // $row->zipcode=$request->zipcode;
                     $row->status=$request->status; 
                     if($request->file('profile_pic'))
                     {

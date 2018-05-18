@@ -32,6 +32,16 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Model\Farmer');
     }
+
+    public function farmer_categories()
+    {
+        return $this->hasMany('App\Model\FarmerCategory');
+    }
+
+    public function customerDetails()
+    {
+        return $this->hasOne('App\Model\Customer');
+    }
     
     public function verifyUser()
     {

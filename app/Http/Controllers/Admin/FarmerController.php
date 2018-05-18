@@ -11,6 +11,7 @@ use DB;
 use App\Model\User;
 use App\Model\Farmer as Farmer;
 use App\Model\Category as Category;
+use App\Model\FarmerCategory;
 use Session;
 use File;
 
@@ -152,7 +153,15 @@ class FarmerController extends Controller
 
         try {
 
-            $user = User::where('users.id','=',$id)->with(['farmerDetails'])->first();
+            $user = User::where('users.id','=',$id)->with(['farmerDetails','farmer_categories'])->first();
+            
+
+            foreach ($user->farmer_categories as $key => $value) {
+                $selectedCatList[] = $value->category_id;
+            }
+            if(!isset($selectedCatList) && empty($selectedCatList)){
+                $selectedCatList = '';
+            }
             //$farmerDetails = Farmer::where('farmers.user_id','=', $user->id)->first();
             //$farmerDetails = User::find($id)->farmerDetails;
             //dd($user->toArray());
@@ -164,7 +173,7 @@ class FarmerController extends Controller
                 $model=$this->model;
                 $categoryList = array_column($this->getCategoryList(), 'name','id');
 
-                return view('admin.'.$this->model.'.edit',compact('title','user','categoryList','breadcum','model','categoryList'));
+                return view('admin.'.$this->model.'.edit',compact('title','user','categoryList','breadcum','model','categoryList','selectedCatList'));
             }
 
             else
@@ -238,23 +247,33 @@ class FarmerController extends Controller
                 if($request->file('banner_image'))
                 {
                     $file = $request->file('banner_image');
-                    $image = uploadwithresize($file,'farmers');
+                    $image = uploadwithresize($file,'banners');
 
-                    // if($previous_row->image)
-                    // {
-                    //     unlinkfile('farmers',$previous_row->image);
-                    // }
+                    if($previous_row->image)
+                    {
+                        unlinkfile('banners',$previous_row->image);
+                    }
 
                     $farmer->banner_image= $image;
                 }
 
                 $farmer->user_id = $user->id;
                 $farmer->description=$request->description;
-                $farmer->categories=$request->category;
+                //$farmer->categories=$request->category;
 
-                
-                
                 $farmer->save();
+
+                FarmerCategory::where('user_id', $user->id)->delete();
+
+                if(isset($request->categories)){
+                    foreach ($request->categories as $key => $category_id) {
+                        $farmer_category = new FarmerCategory();
+                        $farmer_category->user_id = $user->id;
+                        $farmer_category->category_id = $category_id;
+                        $farmer_category->save();
+                    }
+
+                }
                 Session::flash('success', 'Farmer updated successfully.');
                 return redirect()->route('admin.'.$this->model.'.index');
             }

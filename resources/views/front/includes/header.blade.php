@@ -25,7 +25,7 @@
                 
         <?php if($user = Auth::user())
         { ?>
-
+                <li><a href="{!! route('front.page.profile')!!}">MY PROFILE</a></li>
                 <li><a href="{!! route('front.logout')!!}">LOGOUT</a></li>
                
         <?php }  else { ?>

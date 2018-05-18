@@ -33,6 +33,9 @@ $this->group(['namespace' => 'Front'], function () {
 	$this->get('/signup', 'FrontController@signup')->name('front.login.signup');
 	$this->get('/forgot-password', 'FrontController@forgotPassword')->name('front.login.forgotPassword');
 	$this->get('/logout', 'FrontController@logout')->name('front.logout');
+
+	$this->get('/my-profile', 'FrontController@profile')->name('front.page.profile');
+	$this->post('/my-profile', 'FrontController@updateprofile')->name('front.post.profile');
 	
 });
 Route::post('/forgot-password', 'Auth\ForgotPasswordController@forgot')->name('front.post.forgotPassword');

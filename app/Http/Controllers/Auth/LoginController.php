@@ -75,6 +75,7 @@ class LoginController extends Controller
                 'email' => 'required|max:255',
                 'password' => 'required|min:8',
                 'confirm_password' => 'required|same:password',
+				'phone_number' => 'numeric'
             ];
             $validator = Validator::make($request->all(),$validatorRules);
             if ($validator->fails()) 

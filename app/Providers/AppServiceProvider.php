@@ -4,7 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use App\User;
+use App\Model\User;
+use App\Model\Farmer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
     {
         //
 
-         Validator::extend('isValidUser', function($attribute, $value, $parameters)
+        Validator::extend('isValidUser', function($attribute, $value, $parameters)
         {
             $user_id = ( ! empty($parameters)) ? (int) $parameters[0] : 0;
             $row = User::where('id',$user_id)->where('status','1')->first();
@@ -28,6 +29,21 @@ class AppServiceProvider extends ServiceProvider
             }
             return false;
         });
+
+        Validator::extend('isValidFarmerCode', function($attribute, $value, $parameters)
+        {
+            $farmer_code = ( ! empty($parameters)) ? $parameters[0] : 0;
+            $row = Farmer::where('farmer_code',$farmer_code)->first();
+
+            if($row)
+            {
+                if(isset($row->farmer_code) && !empty($row->farmer_code))
+                {
+                    return true;
+                }
+            }
+            return false;
+        });        
 
          
     }

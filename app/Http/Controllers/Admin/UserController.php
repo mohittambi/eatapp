@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Model\User;
-use DB;
-use Illuminate\Support\Facades\Input;   
+use App\Model\Customer;
 use Session;
+use DB;
+use File;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;   
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use File;
+use App\Http\Controllers\Controller;
 class UserController extends Controller
 {
 
@@ -55,7 +56,7 @@ class UserController extends Controller
                    }
                    else
                    {
-                        Session::flash('danger','Invalid username or password');
+                        Session::flash('danger','Invalid username or password.');
                         return redirect()->back()->withInput();
                    }
                 }
@@ -79,8 +80,8 @@ class UserController extends Controller
     {
         $user_id = Session::get('AdminLoggedIn')['user_id'];
         $row =  User::whereId($user_id)->first();
-        $title = 'My-setting';
-        $breadcum = ['My-setting'=>''];
+        $title = 'Change Password';
+        $breadcum = ['Change Password'=>''];
        return view('admin.users.change_profile_password',compact('title','breadcum','row')); 
     }
 
@@ -109,7 +110,7 @@ class UserController extends Controller
             } 
             else
             {
-                Session::flash('warning', 'Wrong old password');
+                Session::flash('warning', 'Current password is incorrect.');
                 return redirect()->back();
             }
         }
@@ -119,8 +120,8 @@ class UserController extends Controller
     {
         $user_id =  Session::get('AdminLoggedIn')['user_id'];
         $row = User::whereId($user_id)->first();
-        $title= 'My-profile'; 
-        $breadcum = ['My profile'=>''];
+        $title= 'My Profile'; 
+        $breadcum = ['My Profile'=>''];
        
         return view('admin.users.myProfile',compact('title','row','breadcum'));
 
@@ -133,7 +134,7 @@ class UserController extends Controller
         {
             $validator = Validator::make($request->all(), [
                 'full_name' => 'required|max:255',
-                 'image_update' =>  'mimes:jpeg,jpg,png,gif',
+                'image_update' =>  'mimes:jpeg,jpg,png,gif',
                 'email' => 'required|email|unique:users,email,' . $row->id,
                 ]);
             if ($validator->fails()) 
@@ -287,6 +288,7 @@ class UserController extends Controller
                 3 =>'created_at',
                 4=> 'status',
                 5=> 'action',
+                6=>'farmer_code',
             );
 
        
@@ -343,6 +345,8 @@ class UserController extends Controller
                
                 $nestedData['status'] = getStatus($list->status,$list->id);
                 $nestedData['email'] =  $list->email;
+                $customer = Customer::where('user_id',$list->id)->first();
+                $nestedData['farmer_code'] =  $customer->farmer_code;
                 $nestedData['full_name'] =  ucfirst($list->full_name);
                 $nestedData['action'] =  getButtons([
                                 ['key'=>'view','link'=>route('admin.users.view',$list->slug)],
@@ -404,24 +408,6 @@ class UserController extends Controller
         }   
     }
 
-      public function businessView($slug)
-    {
-        $title = 'Business';
-        $model = 'business';
-        $row = User::where('slug',$slug)->where('role','B')->first();
-        if($row)
-        {
-            $breadcum = [$title=>route($model.'.index'),$row->full_name=>''];
-            return view('admin.users.business.userView',compact('title','model','breadcum','row')); 
-        }
-        else
-        {
-            Session::flash('warning', 'Invalid request');
-           return redirect()->back();
-        }   
-    }
-
-    
 
     public function userEdit($slug)
     {
@@ -430,7 +416,8 @@ class UserController extends Controller
         {
             $title = 'Customers';
             $model = $this->model;
-            $row = User::where('slug',$slug)->where('role','C')->first();
+            $row = User::where('slug',$slug)->where('role','C')->with('customerDetails')->first();
+
             if($row)
             {
                 $countryList = array_column($this->getCountryList(), 'name','id');
@@ -451,47 +438,19 @@ class UserController extends Controller
         } 
     }
 
-      public function businessEdit($slug)
-    {
-        try
-        {
-            $title = 'Business';
-            $model = 'business';
-            $row = User::where('slug',$slug)->where('role','B')->first();
-            if($row)
-            {
-                $countryList = array_column($this->getCountryList(), 'name','id');
-                $breadcum = [$title=>route($model.'.index'),'Edit'=>'',$row->full_name=>''];
-                return view('admin.users.business.userEdit',compact('title','model','breadcum','row','countryList')); 
-            }
-            else
-            {
-                Session::flash('warning', 'Invalid request');
-                return redirect()->back();
-            }  
-        }
-        catch(\Exception $e)
-        {
-           $msg = $e->getMessage();
-           Session::flash('warning', $msg);
-           return redirect()->back()->withInput();
-        } 
-    }
-
 
     public function userUpdate(Request $request, $slug)
     {
-
         $row =  User::whereSlug($slug)->first();
         try
         {
             $validatorRules = [
                 'full_name' => 'required|max:255',
                 'gender' => 'required|in:M,F',
-                'phone_number' => 'required|numeric|digits_between:7,15|unique:users,phone_number,' . $row->id,
-                'country_id' => 'required',
+                'phone_number' => 'required|numeric|digits_between:7,15',
+                //'country_id' => 'required',
                 'dob' => 'required|date',
-                'email' => 'required|email|max:255|unique:users,email,' . $row->id,
+                //'email' => 'required|email|max:255|unique:users,email,' . $row->id,
                 // 'zipcode' => 'required|max:999999|integer',  
             ];
             $validator = Validator::make($request->all(),$validatorRules);
@@ -501,96 +460,36 @@ class UserController extends Controller
             }
             else
             {
-                    $previous_row = $row;
-                    $dob = strtotime($request->dob);
-                    $row->full_name= $request->full_name;
-                    $row->gender=$request->gender;
-                    $row->phone_number=$request->phone_number;
-                    $row->country_id=$request->country_id;
-                    $row->dob=date('Y-m-d', $dob);
-                    $row->email=$request->email;
-                    // $row->zipcode=$request->zipcode;
-                    $row->status=$request->status; 
-                    if($request->file('profile_pic'))
+                $previous_row = $row;
+                $dob = strtotime($request->dob);
+                $row->full_name= $request->full_name;
+                $row->gender=$request->gender;
+                $row->phonecode=$request->phonecode;
+                $row->phone_number=$request->phone_number;
+                $row->country_id=$request->country_id?$request->country_id:'0';
+                $row->dob=date('Y-m-d', $dob);
+                //$row->email=$request->email;
+                //$row->zipcode=$request->zipcode;
+                $row->status=$request->status; 
+                if($request->file('profile_pic'))
+                {
+                    $file = $request->file('profile_pic');
+                    $image = uploadwithresize($file,'users');
+                    if($previous_row->image)
                     {
-                        $file = $request->file('profile_pic');
-                        $image = uploadwithresize($file,'users');
-                        if($previous_row->image)
-                        {
-                            unlinkfile('users',$previous_row->image);
-                        }
-                        $row->image= $image;
+                        unlinkfile('users',$previous_row->image);
                     }
-                    $row->save();
-                    Session::flash('success', 'Record updated successfully.');
-                    return redirect()->route($this->model.'.index');  
-               
-            }
-        }
-        catch(\Exception $e)
-        {
-            $msg = $e->getMessage();
-            Session::flash('warning', $msg);
-            return redirect()->back()->withInput();
-        }
-
-
-        
-     
-        
-    }
-
-    public function businessUpdate(Request $request, $slug)
-    {
-
-        $row =  User::whereSlug($slug)->first();
-        try
-        {
-            $validatorRules = [
-                'full_name' => 'required|max:255',
-                 'business_name' => 'required|max:255',
-                   'business_address' => 'required|max:255',
-               
-                'phone_number' => 'required|numeric|digits_between:7,15|unique:users,phone_number,' . $row->id,
-                'country_id' => 'required',
-               
-                'email' => 'required|email|max:255|unique:users,email,' . $row->id,
-                 
-            ];
-            $validator = Validator::make($request->all(),$validatorRules);
-            if ($validator->fails()) 
-            {
-                return redirect()->back()->withInput()->withErrors($validator->errors());
-            }
-            else
-            {
-                    $previous_row = $row;
+                    $row->image= $image;
+                }
+                $row->save();
+                $customer = Customer::where('user_id',$row->id)->first();
+                $customer->address       = $request->address;
+                $customer->address_lat   = $request->latitude;
+                $customer->address_lang  = $request->longitude;
                     
-                    $row->full_name= $request->full_name;
-                   
-                    $row->phone_number=$request->phone_number;
-                    $row->country_id=$request->country_id;
-                   
-                    $row->email=$request->email;
-
-                    $row->business_name=$request->business_name;
-
-                    $row->business_address=$request->business_address;
-                  
-                    $row->status=$request->status; 
-                    if($request->file('profile_pic'))
-                    {
-                        $file = $request->file('profile_pic');
-                        $image = uploadwithresize($file,'users');
-                        if($previous_row->image)
-                        {
-                            unlinkfile('users',$previous_row->image);
-                        }
-                        $row->image= $image;
-                    }
-                    $row->save();
-                    Session::flash('success', 'Record updated successfully.');
-                    return redirect()->route('business.index');  
+                $customer->save();
+                Session::flash('success', 'Record updated successfully.');
+                return redirect()->route($this->model.'.index');  
                
             }
         }
@@ -601,12 +500,9 @@ class UserController extends Controller
             return redirect()->back()->withInput();
         }
 
-
-        
-     
-        
     }
 
+    
 
     public function userDelete($slug)
     {

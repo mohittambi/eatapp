@@ -23,19 +23,36 @@ class SubscriberController extends Controller
     public function __construct()
     {
       $this->model = 'subscribers';
-      $this->title = 'Subscribers';
+      $this->title = 'Feedbacks';
     }
 
 	public function index()
     {
 
-        $row = ContactForm::where('status','=', '1')->get();
-        $title= 'All Subscribers'; 
-        $breadcum = ['Subscribers'=>''];
+        $row = ContactForm::where('status', '1')->get();
+        $title= 'All Feedback'; 
+        $breadcum = ['Feedbacks'=>''];
         return view('admin.'.$this->model.'.index',compact('title','row','breadcum'));
 
     }
 
+    public function destroy($id)
+    {
+        try {
+
+            $user = ContactForm::where('id', $id)->delete();
+            
+            Session::flash('success', 'Record deleted successfully.');
+            return redirect()->route('admin.'.$this->model.'.index');
+
+        } catch (\Exception $e) {
+
+            $msg = $e->getMessage();
+            Session::flash('warning', $msg);
+            return redirect()->back()->withInput();
+
+        }
+    }
 
 
     public function SubscribersListWithDatatable(Request $request)
@@ -46,13 +63,13 @@ class SubscriberController extends Controller
                 1 =>'name',
                 2 =>'email',
                 3 =>'created_at',
-                4=> 'status',
+                4=> 'comment',
                 5=> 'action',
-                6=> 'sendEmail', 
+               // 5=> 'sendEmail', 
             );
 
 
-        $totalData = ContactForm::where('status','=','1')->count();
+        $totalData = ContactForm::where('status','1')->count();
         $totalFiltered = $totalData;
         $limit = $request->input('length');
         $start = $request->input('start');
@@ -69,7 +86,7 @@ class SubscriberController extends Controller
         else
         {
             $search = $request->input('search.value'); 
-            $posts = ContactForm::where('status','=','1')
+            $posts = ContactForm::where('status','1')
                             ->where(function($query) use ($search){
                         		$query->where('id','LIKE',"%{$search}%")
                             		->orWhere('name','LIKE',"%{$search}%")
@@ -79,7 +96,7 @@ class SubscriberController extends Controller
 		                    ->limit($limit)
 		                    ->orderBy($order,$dir)
 		                    ->get();
-            $totalFiltered = ContactForm::where('status','=','1')
+            $totalFiltered = ContactForm::where('status','1')
                                     ->where(function($query) use ($search){
                                 		$query->where('id','LIKE',"%{$search}%")
                                 		->orWhere('name','LIKE',"%{$search}%")
@@ -95,17 +112,25 @@ class SubscriberController extends Controller
         {
             foreach ($posts as $list)
             {
-                
+                if(strlen($list->comment)>20)
+                {
+                    $comment = substr($list->comment, 0,20);
+                    $comment = $comment.' ...';
+                }
+                else{
+                    $comment = $list->comment;
+                }
                 $nestedData['id'] = $list->id;
                 $nestedData['created_at'] = date('d-m-Y H:i A',strtotime($list->created_at));
-                $nestedData['status'] = getStatus($list->status,$list->id);
+                // $nestedData['status'] = getStatus($list->status,$list->id);
                 $nestedData['name'] =  $list->name;
                 $nestedData['email'] =  $list->email;
-                $nestedData['sendEmail'] =  sendEmail($list->id,$email_template_sulg);
+                // $nestedData['sendEmail'] =  sendEmail($list->id,$email_template_sulg);
+                $nestedData['comment'] =  $comment;
                 $nestedData['action'] =  getButtons([
-                                //['key'=>'view','link'=>route('admin.farmers.view',$list->id)],
+                                ['key'=>'view','link'=>route('admin.subscribers.view',$list->id)],
                                 //['key'=>'edit','link'=>route('admin.emailTemplates.edit',$list->id)],
-                                //['key'=>'delete','link'=>route('admin.farmers.delete',$list->id)],
+                                ['key'=>'delete','link'=>route('admin.subscribers.delete',$list->id)],
                             ]);
                 $data[] = $nestedData;
             }
@@ -173,6 +198,26 @@ class SubscriberController extends Controller
             return false;            
         }
     	
+    }
+
+    public function show($id)
+    {
+        $title = $this->title;
+        $model = $this->model;
+        
+        $row = ContactForm::where('id',$id)->where('status','1')->first();
+        
+        
+        if($row)
+        {
+            $breadcum = [$title=>route('admin.'.$this->model.'.index'),$row->full_name=>''];
+            return view('admin.'.$this->model.'.view',compact('title','model','breadcum','row','catListName','farmer_code')); 
+        }
+        else
+        {
+            Session::flash('warning', 'Invalid request');
+           return redirect()->back();
+        }  
     }
 
 

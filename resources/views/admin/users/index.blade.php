@@ -18,7 +18,8 @@
                 <tr>
                   <th width="10%">Id</th>
                   <th width="25%"  >Full Name </th>
-                  <th width="30%"  >Email </th>
+                  <th width="20%"  >Email </th>
+                  <th width="10%"  >Farmer Code </th>
                   <th width="15%"  >Created At</th>
                   <th width="10%"  >Status</th>
                   <th width="10%" class="noneedtoshort" >Action</th>
@@ -86,6 +87,7 @@ function changeStatus(id)
       { data: 'id', name: 'id', orderable:true },
       { data: 'full_name', name: 'full_name', orderable:true  },
       { data: 'email', name: 'email', orderable:true},
+      { data: 'farmer_code', name: 'farmer_code', orderable:true},
       { data: 'created_at', name: 'created_at', orderable:false },
       { data: 'status', name: 'status', orderable:false},
       { data: 'action', name: 'action', orderable:false }  

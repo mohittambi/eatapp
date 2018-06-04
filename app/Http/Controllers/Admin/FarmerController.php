@@ -12,6 +12,7 @@ use App\Model\User;
 use App\Model\Farmer as Farmer;
 use App\Model\Category as Category;
 use App\Model\FarmerCategory;
+use App\Model\Location;
 use Session;
 use File;
 
@@ -35,7 +36,7 @@ class FarmerController extends Controller
     public function index()
     {
         //$user_id =  Session::get('AdminLoggedIn')['user_id'];
-        $row = User::where('status','=', '1')->where('role','=','F')->get();
+        $row = User::where('verified','=', '1')->where('role','=','F')->get();
         $title= 'All Farmer'; 
         $breadcum = ['Farmers'=>''];
        
@@ -72,6 +73,7 @@ class FarmerController extends Controller
         
             $user = new User;
             $farmer = new Farmer;
+            $farmerCategory = new FarmerCategory;
 
             $full_name          = $request->first_name.' '.$request->last_name;
             $user->first_name   = $request->first_name;
@@ -80,13 +82,14 @@ class FarmerController extends Controller
             $user->email        = $request->email;
             //$user->password     = $request->password;
             $user->status       = 0;
+            $user->verified     = '1';
             $user->role         = 'F';
 
 
             if($request->file('cat_img'))
             {
                 $file = $request->file('cat_img');
-                $image = uploadwithresize($file,'users');
+                $image = uploadwithresize($file,'farmers');
                 $user->image= $image;
             }
 
@@ -95,15 +98,25 @@ class FarmerController extends Controller
             if($request->file('banner_img'))
             {
                 $file = $request->file('banner_img');
-                $image = uploadwithresize($file,'users');
+                $image = uploadwithresize($file,'banners');
                 $farmer->banner_image = $image;
             }
 
             $farmer->user_id       = $user->id;
             $farmer->description   = $request->description;
-            $farmer->categories    = $request->category;
 
             $farmer->save();
+
+            
+
+            if(isset($request->categories)){
+                foreach ($request->categories as $key => $category_id) {
+                    $farmerCategory->user_id        = $user->id;
+                    $farmerCategory->category_id    = $category_id;
+                    $farmerCategory->save();
+                }
+
+            }
 
             Session::flash('success', 'Farmer added successfully.');
             return redirect()->route('admin.'.$this->model.'.index');
@@ -128,12 +141,23 @@ class FarmerController extends Controller
     {
         $title = $this->title.' Profile';
         $model = $this->model;
-        $row = User::where('id',$id)->where('verified','=','1')->with(['farmerDetails'])->first();
-
+        
+        $row = User::where('id',$id)->where('verified','1')->with(['farmerDetails','farmer_categories','locations'])->first();
+        foreach($row->farmer_categories as $categories){
+            $catlist[] = Category::where('categories.id',$categories->category_id)->first()->name;
+        }
+        if(isset($catlist) && !empty($catlist))
+        {$catListName = implode(', ', $catlist);}
+        else{$catListName='';}
+        if(isset($row->farmerDetails->farmer_code) && !empty($row->farmerDetails->farmer_code))
+        {$farmer_code = $row->farmerDetails->farmer_code;}
+        else{$farmer_code='';}
+        
+        
         if($row)
         {
             $breadcum = [$title=>route('admin.'.$this->model.'.index'),$row->full_name=>''];
-            return view('admin.'.$this->model.'.view',compact('title','model','breadcum','row')); 
+            return view('admin.'.$this->model.'.view',compact('title','model','breadcum','row','catListName','farmer_code')); 
         }
         else
         {
@@ -153,7 +177,7 @@ class FarmerController extends Controller
 
         try {
 
-            $user = User::where('users.id','=',$id)->with(['farmerDetails','farmer_categories'])->first();
+            $user = User::where('users.id',$id)->with(['farmerDetails','farmer_categories','locations'])->first();
             
 
             foreach ($user->farmer_categories as $key => $value) {
@@ -204,13 +228,16 @@ class FarmerController extends Controller
 
         $user = User::where('users.id','=',$id)->first();
         $farmer =  Farmer::where('farmers.user_id','=',$id)->first();
+        $location = Location::where('user_id',$user->id)->first();
 
         try
         {
             $validatorRules = [
-                'first_name' => 'required|max:255',
-                'last_name' => 'required|max:255',
-                'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+                'first_name'    => 'required|max:255',
+                'last_name'     => 'required|max:255',
+                //'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+                'address'       => 'required|max:255',
+                'location_name' => 'max:255',
                 
             ];
             $validator = Validator::make($request->all(),$validatorRules);
@@ -226,7 +253,7 @@ class FarmerController extends Controller
                 $user->first_name=$request->first_name;
                 $user->last_name=$request->last_name;
                 $user->full_name=$full_name;
-                $user->email=$request->email;
+                //$user->email=$request->email;
                 $user->status=$request->status;
 
                 if($request->file('profile_pic'))
@@ -259,7 +286,6 @@ class FarmerController extends Controller
 
                 $farmer->user_id = $user->id;
                 $farmer->description=$request->description;
-                //$farmer->categories=$request->category;
 
                 $farmer->save();
 
@@ -274,6 +300,14 @@ class FarmerController extends Controller
                     }
 
                 }
+
+
+                $location->address       = $request->address;
+                $location->latitude      = $request->latitude;
+                $location->longitude     = $request->longitude;
+                $location->location_name = $request->location_name?$request->location_name:null;
+                $location->save();
+
                 Session::flash('success', 'Farmer updated successfully.');
                 return redirect()->route('admin.'.$this->model.'.index');
             }

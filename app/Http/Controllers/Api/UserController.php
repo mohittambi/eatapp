@@ -15,6 +15,7 @@ use App\Model\User;
 use App\Model\Customer;
 use App\Model\UserDevice;
 use App\Model\SocialAccount;
+use App\Model\Farmer;
 
 class UserController extends Controller
 {   
@@ -48,34 +49,16 @@ class UserController extends Controller
         $validatorRules = [
                 'role' => 'required|in:B,C',
                 'full_name' => 'required|max:255',
-              //'gender' => 'required|in:M,F',
+                //'gender' => 'required|in:M,F',
                 'phone_number' => 'required|numeric|digits_between:7,15|unique:users',
-                'country_id' => 'required',
-              //'phone_number' => 'required|numeric|digits_between:7,15|unique:users,phone_number,NULL,id,country_id,' . $request->country_id,
-              //'dob' => 'required|date',
+                //'country_id' => 'required',
                 'email' => 'required|email|max:255|unique:users',
-                'password' => 'required|max:50|min:8',
-              //'zipcode' => 'required|max:999999|integer',
+                'password' => 'required|max:20|min:8',
                 'profile_pic' =>  'mimes:jpeg,jpg,png,gif',              
                 'device_type'=>'required',
                 'device_id'=>'required'
         ];
-
-        if($request->role == 'C')
-        {
-            $validatorRules['gender'] = 'required|in:M,F';
-            $validatorRules['dob'] = 'required|date';
-            $validatorRules['zipcode'] = 'required|max:999999|integer';
-        }
-
-        if($request->role == 'B')
-        {
-            $validatorRules['business_name'] = 'required';
-            $validatorRules['business_address'] = 'required';
-        }
-
-       
-
+   
 
         $validator = Validator::make($request->all(),$validatorRules);
         if ($validator->fails()) 
@@ -85,12 +68,13 @@ class UserController extends Controller
         }
         else
         {
-            
             return response()->json(['status'=>true,'message'=>'User can register']);
         }
     }
 
-    public function generateRandomString($length = 20) {
+
+    public function generateRandomString($length = 20)
+    {
         $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = 'UC';
@@ -104,6 +88,7 @@ class UserController extends Controller
         return $randomString;
     }
 
+
     public function signup(Request $request)
     {
 
@@ -112,18 +97,20 @@ class UserController extends Controller
                 'last_name'     => 'required|max:255',
                 'email'         => 'required|email|max:255|unique:users',
                 'country_code'  => 'required|numeric|digits_between:0,5',
-                'phone_number'  => 'required|numeric|digits_between:7,15|unique:users',
+                'phone_number'  => 'required|numeric|digits_between:7,15',
                 'address'       => 'required',
                 'address_lat'   => 'required',
                 'address_lang'  => 'required',
-                'country'       => 'required',
+                //'country'       => 'required',
+                'country'       => 'max:10',
                 'gender'        => 'required|in:M,F',
                 'dob'           => 'required|date',
-                'password'      => 'required|max:50|min:8',
+                'password'      => 'required|max:20|min:8',
                // 'zipcode'     => 'required|max:999999|integer',
                // 'profile_pic' => 'mimes:jpeg,jpg,png,gif',
-                'device_type' => 'required',
-                'device_id'   => 'required'
+                'farmer_code'   => 'max:6|isValidFarmerCode:'.$request->farmer_code,
+                'device_type'   => 'required',
+                'device_id'     => 'required'
         ];
 
         $validator = Validator::make($request->all(),$validatorRules);
@@ -146,7 +133,7 @@ class UserController extends Controller
             $user->last_name        = $request->last_name;
             $user->full_name        = $full_name;
             $user->email            = $request->email;
-            $user->country_id       = $request->country;
+            $user->country_id       = $request->country?$request->country:null;
             $user->phonecode        = $request->country_code;
             $user->phone_number     = $request->phone_number;
             $user->gender           = $request->gender;
@@ -160,7 +147,7 @@ class UserController extends Controller
                 $user->verified     = '0';
             }
 
-            $user->status           = '0';
+            $user->status           = '1';
             $user->save();
 
             $customer->user_id      = $user->id;
@@ -203,8 +190,8 @@ class UserController extends Controller
 
     	Log::debug($request->all());
         $validator = Validator::make($request->all(), [
-                        'email'       => 'required',
-                        'password'    => 'required',
+                        'email'       => 'required|email',
+                        'password'    => 'required|max:20|min:8',
                         'device_type' => 'required',
                         'device_id'   => 'required',
                     ]);
@@ -225,37 +212,22 @@ class UserController extends Controller
 
             if ($row && Hash::check($request->password, $row->password) && $row->role == 'C') 
             {
-                if($row->verified == '1' && $row->status == '1' )
+                if($row->verified == '1')
                 {
-                    // if($request->role == 'B')
-                    // {
-                    //     $is_have_business_details = $this->userHaveBusinessDetails($row);
-                    //     if($is_have_business_details == true)
-                    //     {
-                    //         $row->role = 'B';
-                    //         $row->save();  
-                    //     }
-                    // }
+                    if($row->status == '1' ){
+                        $user =  $this->getuserdetailfromObjectArray($row);
 
-                    // if($request->role == 'C')
-                    // {
-                    //     $is_have_customer_details = $this->userHaveCustomerDetails($row);
-                    //     if($is_have_customer_details == true)
-                    //     {
-                    //         $row->role = 'C';
-                    //         $row->save();  
-                    //     }
-                    // }
-
-
-                    $user =  $this->getuserdetailfromObjectArray($row);
-
-                    $this->manageDeviceIdAndToken($row->id,$request->device_id,$request->device_type,'add');               
-                    return response()->json(['status'=>true,'message'=>'Login successful.','data'=>$user]);
+                        $this->manageDeviceIdAndToken($row->id,$request->device_id,$request->device_type,'add');               
+                        return response()->json(['status'=>true,'message'=>'Login successful.','data'=>$user]);
+                    }
+                    else
+                    {
+                        return response()->json(['status'=>false,'message'=>'Your account is inactive.']);
+                    }
                 }
                 else
                 {
-                    return response()->json(['status'=>false,'message'=>'Your account is deactivated.']);
+                    return response()->json(['status'=>false,'message'=>'Your account is not verified.']);
                 }
                 
 
@@ -276,18 +248,18 @@ class UserController extends Controller
                 'user_id'       => 'required|isValidUser:'.$request->user_id,
                 'first_name'    => 'required|max:255',
                 'last_name'     => 'required|max:255',
-                'email'         => 'required|email|unique:users,email,' . $request->user_id,
+                //'email'         => 'required|email|unique:users,email,' . $request->user_id,
                 'country_code'  => 'required|numeric|digits_between:0,5',
                 'phone_number'  => 'required|numeric|digits_between:7,15',
                 'address'       => 'required',
                 'address_lat'   => 'required',
                 'address_lang'  => 'required',
-                'country'       => 'required',
+                //'country'       => 'required',
                 'gender'        => 'required|in:M,F',
                 'dob'           => 'required|date',
                 'profile_pic'   => 'mimes:jpeg,jpg,png,gif',
-                'device_type'   => 'required',
-                'device_id'     => 'required'
+                // 'device_type'   => 'required',
+                // 'device_id'     => 'required'
         ];
 
 
@@ -316,12 +288,12 @@ class UserController extends Controller
             $previous_row       = $row;
             $row->first_name    = $request->first_name;
             $row->last_name     = $request->last_name;
-            $row->email         = $request->email;
+            //$row->email         = $request->email;
             $row->phonecode     = $request->country_code;
             $row->phone_number  = $request->phone_number;
-            $row->country_id    = $request->country;
-            $row->dob           = $request->dob;
-            $row->image         = $request->profile_pic;
+            //$row->country_id    = $request->country;
+            $row->dob           = date('Y-m-d',strtotime($request->dob));
+            //$row->image         = $request->profile_pic;
             $row->gender        = $request->gender;
            
             // if($request->file('cover_photo'))
@@ -337,21 +309,31 @@ class UserController extends Controller
                
             // }
 
-            if($request->file('profile_pic'))
+
+            if($request->file('profile_pic') && $request->file('profile_pic')!= null)
             {
                 $file = $request->file('profile_pic');
                 $image = uploadwithresize($file,'users');
-               
+                //dd($image);
                 if($previous_row->image)
                 {
                     unlinkfile('users',$previous_row->image);
                 }
-                $row->image= $image;
+                $row->image = $image;
                
             }
+            //dd($row);
             $row->save();
+            //dd($row);
 
-            $customer = new Customer();
+            if(Customer::where('user_id','=',$row->id)->exists()){
+                $customer = Customer::where('user_id','=',$row->id)->first();
+                //$customer = new Customer();
+            }else{
+                $customer = new Customer();
+            }
+            
+
             $customer->user_id      = $row->id;
             $customer->address      = $request->address;
             $customer->address_lat  = $request->address_lat;
@@ -359,7 +341,7 @@ class UserController extends Controller
 
             $customer->save();
 
-            $this->manageDeviceIdAndToken($row->id,$request->device_id,$request->device_type,'add');
+            //$this->manageDeviceIdAndToken($row->id,$request->device_id,$request->device_type,'add');
             if(isset($request->social_id) && $request->social_id != "" && isset($request->social_type) && $request->social_type != "")
             {
                 $this->manageSocialAccounts($row->id,$request->social_id,$request->social_type);
@@ -387,74 +369,46 @@ class UserController extends Controller
         }
         else
         {
-            $social_row = SocialAccount::where('social_type',$request->social_type)->where('social_id',$request->social_id);
-            if(isset($request->email) && $request->email !="")
+            //$social_row = SocialAccount::where('social_type',$request->social_type)->where('social_id',$request->social_id);
+            $email = $request->email;
+            $socialId = $request->social_id;
+
+            if(isset($email) && !empty($email))
             {
-                $email = $request->email;
+            /* $email = $request->email;
                 $social_row = $social_row->whereHas('getAssociateUserWithSocial',function ($query) use($email) {  
                         $query->where('email', $email)
                         ->where('role', 'C');
-                    });
+                    });*/
+
+                $social_row =  User::orWhereHas('social_accounts', function ($query) use ($socialId)
+                                {
+                                    $query->where('social_id',$socialId);
+                                })
+                                ->orWhere('email', $email)->where('role', 'C');
+
+
+            }else{
+                $social_row =  User::orWhereHas('social_accounts', function ($query) use ($socialId)
+                                {
+                                    $query->where('social_id',$socialId);
+                                })->where('role', 'C');
             }
             $social_row = $social_row->first();    
+            
             if($social_row)
             {
-                $row = $social_row->getAssociateUserWithSocial;
-                $user =  $this->getuserdetailfromObjectArray($row);
+                //$row = $social_row->getAssociateUserWithSocial;
+                $user =  $this->getuserdetailfromObjectArray($social_row);
                 return response()->json(['status'=>true,'message'=>'Social user detail.','data'=>$user]);
-            }
-            else
-            {
-
-                 // if(isset($request->email) && $request->email !="")
-                 // {
-                 //    $user = User::where('email',$request->email)->first();
-                 //    if($user)
-                 //    {
-                 //        $this->manageSocialAccounts($user->id,$request->social_id,$request->social_type);
-
-                 //        if($request->role == 'B')
-                 //        {
-                 //            $is_have_business_details = $this->userHaveBusinessDetails($user);
-                 //            if($is_have_business_details == true)
-                 //            {
-                 //                $user->role = 'B';
-                 //                $user->save();  
-                 //            }
-                 //        }
-
-                 //        if($request->role == 'C')
-                 //        {
-                 //             $is_have_customer_details = $this->userHaveCustomerDetails($user);
-                 //            if($is_have_customer_details == true)
-                 //            {
-                 //                $user->role = 'C';
-                 //                $user->save();  
-                 //            }
-                 //        }
-
-
-                 //        $user =  $this->getuserdetailfromObjectArray($user);
-                 //        return response()->json(['status'=>true,'message'=>'Social user detail','data'=>$user]);
-                 //    }
-                 //    else
-                 //    {
-                 //        return response()->json(['status'=>false,'message'=>'No user found.']);
-                 //    }
-
-                 // }
-                // else
-                {
-                    return response()->json(['status'=>false,'message'=>'No user found.']);
-                }
-
-               
+            }else{
+                return response()->json(['status'=>false,'message'=>'No user found.']);
             }
             
         }
     }
 
-   public function forgotPassword(Request $request)
+    public function forgotPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
                         'email' => 'required|email',
@@ -524,37 +478,39 @@ class UserController extends Controller
     }
 
 
-
     public function getuserdetailfromObjectArray($row)
     {
 
         $user = [];
         if($row->role == 'C')
         {
+            //echo $row->id;  die;
             $customer = Customer::where('user_id',$row->id)->get();
             $user = (object)array(
             'user_id'           => (int)$row->id,
             'first_name'        => $row->first_name,
             'last_name'         => $row->last_name,
-            'country_id'        => (int)$row->country_id,
-//            'country_name'      => $row->getRelatedCountry->name,
-//            'phonecode'         => $row->getRelatedCountry->phonecode,
+            'country_id'        => $row->country_id?(int)$row->country_id:'',
+            //'country_name'      => $row->getRelatedCountry->name,
+            //'phonecode'         => $row->getRelatedCountry->phonecode,
             'email'             => $row->email,
             'phone_number'      => $row->phone_number,
             'profile_pic'       => $row->image?$this->uploadsfolder.'/users/'.$row->image:asset('images/user.png'),
             'profile_pic_thumb' => $row->image?$this->uploadsfolder.'/users/thumb/'.$row->image:asset('images/user.png'),
-            'verified'          => $row->verified,
-            'status'            => $row->status,
-            'gender'            => $row->gender=='M'?'Male':'Female',
+            'verified'          => (int)$row->verified,
+            'status'            => (int)$row->status,
+            'gender'            => $row->gender=='M'?'M':'F',
             'dob'               => date('d-m-Y',strtotime($row->dob)),
             'created_at'        => strtotime($row->created_at), 
             );
-            if($row->apiType == 'get-user-profile'){
+
+            // if($row->apiType == 'get-user-profile'){
+                $user->country_code = $row->phonecode;
                 $user->address = $row->customerDetails->address;
                 $user->address_lat = $row->customerDetails->address_lat;
                 $user->address_lang = $row->customerDetails->address_lang;
-                //$user->farmer_code = $row->customerDetails->farmer_code; 
-            }
+                $user->farmer_code = $row->customerDetails->farmer_code?$row->customerDetails->farmer_code:''; 
+            //}
         }
         else
         {
@@ -562,205 +518,8 @@ class UserController extends Controller
                 $user['message'] = 'Invalid username or password.';
             }
         }
-
-        //  if($row->role == 'B')
-        // {
-        //     $user = (object)array(
-        //     'user_id'=>(int)$row->id,
-           
-        //     'full_name'=>$row->full_name,
-        //     'country_id'=>(int)$row->country_id,
-        //     'country_name'=>$row->getRelatedCountry->name,
-        //     'phonecode'=>$row->getRelatedCountry->phonecode,
-        //     'email'=>$row->email,
-        //     'phone_number'=>$row->phone_number,
-        //     'profile_pic'=>$row->image?$this->uploadsfolder.'/users/'.$row->image:asset('images/user.png'),
-        //     'profile_pic_thumb'=>$row->image?$this->uploadsfolder.'/users/thumb/'.$row->image:asset('images/user.png'),
-        //     'status'=>$row->status,
-        //     'role'=>'B',
-        //     'business_name'=>$row->business_name,
-        //      'business_address'=>$row->business_address,
-
-        //       'about_my_company'=>$row->about_my_company?$row->about_my_company:'',
-        //        'business_license'=>$row->business_license?$row->business_license:'',
-
-             
-             
-
-        //       'cover_photo'=>$row->cover_photo?$this->uploadsfolder.'/users/'.$row->cover_photo:'',
-        //     'cover_photo_thumb'=>$row->cover_photo?$this->uploadsfolder.'/users/thumb/'.$row->cover_photo:'',
-
-
-        //     'created_at'=> strtotime($row->created_at)
-        //     );
-        // }
-
-        //$user->is_have_customer_details = $this->userHaveCustomerDetails($row);
-        //$user->is_have_business_details = $this->userHaveBusinessDetails($row);
         return $user;
     }
-
-    public function userHaveCustomerDetails($row)
-    {
-        if($row->gender && $row->gender != '' && $row->dob && $row->dob != '')
-        {
-            return true;
-        }
-        else
-        {
-             return false;
-        }
-    }
-
-    // public function userHaveBusinessDetails($row)
-    // {
-    //     if($row->business_name && $row->business_name != '' && $row->business_address && $row->business_address != '' )
-    //     {
-    //         return true;
-    //     }
-    //     else
-    //     {
-    //          return false;
-    //     }
-    // }
-
-    public function addBusinessDetails(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-                        'user_id' => 'required|isValidUser:'.$request->user_id,
-                        'business_address'=>'required',
-                        'business_name'=>'required'  
-                    ]);
-        if ($validator->fails()) 
-        {
-            $error = $this->validationHandle($validator->messages()); 
-            return response()->json(['status'=>false,'message'=>$error]);
-        }
-        else
-        {
-            $row = User::whereId($request->user_id)->first();
-            $row->business_address = $request->business_address;
-            $row->business_name = $request->business_name;
-            $row->role = 'B';
-            $row->save();
-            $user =  $this->getuserdetailfromObjectArray($row);
-            return response()->json(['status'=>true,'message'=>'Profile updated successfully.','data'=>$user]);
-        }
-    }
-
-     public function addBusinessExtraDetails(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-                        'user_id' => 'required|isValidUser:'.$request->user_id,
-                        'key'=>'required|in:about_my_company,business_license',
-                        'detail'=>'required'  
-                    ]);
-        if ($validator->fails()) 
-        {
-            $error = $this->validationHandle($validator->messages()); 
-            return response()->json(['status'=>false,'message'=>$error]);
-        }
-        else
-        {
-            $row = User::whereId($request->user_id)->first();
-            if($request->key == 'about_my_company')
-            {
-                $row->about_my_company = $request->detail;
-            }
-
-            if($request->key == 'business_license')
-            {
-                $row->business_license = $request->detail;
-            }
-
-            $row->save();
-            $user =  $this->getuserdetailfromObjectArray($row);
-            return response()->json(['status'=>true,'message'=>'Successfully updated.','data'=>$user]);
-        }
-    }
-
-    public function addCustomerDetails(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-                        'user_id' => 'required|isValidUser:'.$request->user_id,
-                        'gender'=>'required|in:M,F',
-                        'zipcode'=>'required|max:999999|integer', 
-                        'dob'=>'required|date' 
-                    ]);
-        if ($validator->fails()) 
-        {
-            $error = $this->validationHandle($validator->messages()); 
-            return response()->json(['status'=>false,'message'=>$error]);
-        }
-        else
-        {
-            $row = User::whereId($request->user_id)->first();
-            $row->gender=$request->gender?$request->gender:'M';
-            $dob = strtotime($request->dob);
-            $row->dob=date('Y-m-d', $dob);
-            $row->zipcode=$request->zipcode;
-            $row->role = 'C';
-            $row->save();
-            $user =  $this->getuserdetailfromObjectArray($row);
-            return response()->json(['status'=>true,'message'=>'Profile updated successfully.','data'=>$user]);
-        }
-    }
-
-
-     public function switchRole(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-                        'user_id' => 'required|isValidUser:'.$request->user_id,
-                        'role'=>'required|in:B,C'
-                        
-                    ]);
-        if ($validator->fails()) 
-        {
-            $error = $this->validationHandle($validator->messages()); 
-            return response()->json(['status'=>false,'message'=>$error]);
-        }
-        else
-        {
-            $row = User::whereId($request->user_id)->first();
-
-            if($request->role=='C')
-            {
-                $is_have_customer_details = $this->userHaveCustomerDetails($row);
-                if($is_have_customer_details == true)
-                {
-                    $row->role = 'C';
-                    $row->save(); 
-                    $user =  $this->getuserdetailfromObjectArray($row);
-                    return response()->json(['status'=>true,'message'=>'Switched successfully.','data'=>$user]);
-                }
-                else
-                {
-                     return response()->json(['status'=>false,'message'=>'Do not have customer details.']);
-                }
-            }
-            else if($request->role=='B')
-            {
-                $is_have_business_details = $this->userHaveBusinessDetails($row);
-                if($is_have_business_details == true)
-                {
-                    $row->role = 'B';
-                    $row->save(); 
-                    $user =  $this->getuserdetailfromObjectArray($row);
-                    return response()->json(['status'=>true,'message'=>'Switched successfully.','data'=>$user]);
-                }
-                else
-                {
-                     return response()->json(['status'=>false,'message'=>'Do not have business details.']);
-                }
-            }
-            else
-            {
-                return response()->json(['status'=>false,'message'=>'Invalid access.']);
-            }
-        }
-    }
-
-
 
 
     public function changePassword(Request $request)
@@ -777,7 +536,7 @@ class UserController extends Controller
         }
         else
         {
-            $row = User::whereId($request->user_id)->where('verified','1')->first();
+            $row = User::whereId($request->user_id)->where('verified','1')->where('role','C')->first();
             if (Hash::check($request->currentPassword, $row->password)) 
             {
                 $row->password = bcrypt($request->newPassword);
@@ -786,11 +545,10 @@ class UserController extends Controller
             }
             else
             {
-                return response()->json(['status'=>false,'message'=>'Old password is not correct.']);
+                return response()->json(['status'=>false,'message'=>'Current password is not correct.']);
             }
         }
     }
-
 
 
     public function getUserProfile(Request $request)
@@ -824,8 +582,6 @@ class UserController extends Controller
     }
 
 
-
-
     public function logout(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -845,6 +601,7 @@ class UserController extends Controller
 
         }
     }
+
 
     public function checkuser(Request $request)
     {
@@ -889,44 +646,11 @@ class UserController extends Controller
         }
     }
 
-    public function updatePasswordByPhoneNumber(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-                        'phone_number' => 'required',
-                        'password'=>'required||min:8'
-                        
-                    ]);
-        if ($validator->fails()) 
-        {
-            $error = $this->validationHandle($validator->messages()); 
-            return response()->json(['status'=>false,'message'=>$error]);
-        }
-        else
-        {
-            $row = User::where('phone_number',$request->phone_number)->first();
-            if($row)
-            {
-                $row->password = bcrypt($request->password);
-                $row->save();
-                return response()->json(['status'=>true,'message'=>'Password updated successfully.']);
-            }
-            else
-            {
-                return response()->json(['status'=>false,'message'=>'Invalid user.']);
-            }
-
-        }
-    }
-
 
     public function getCountries()
     {
          return response()->json(['status'=>true,'message'=>'Listing.','data'=>$this->getCountryList()]);
     }
-
-
-
-    
 
 
 }  

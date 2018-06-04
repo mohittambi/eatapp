@@ -56,13 +56,13 @@ class ForgotPasswordController extends Controller
                 return $response;
             } else {
                 $userdata = ['email' => $data['email']];
-                $user = User::where('email', $data['email'])->where('verified','1')->first();
+                $user = User::where('email', $data['email'])->where('verified','1')->where('role','F')->first();
                 //dd($user);
                 if (!$user) {
                     $response['verified'] = "false";
                     $response['message'] = "Email does not exist.";
                     //return $response;
-                    Session::flash('success', 'Email does not exist.');
+                    Session::flash('danger', 'Email does not exist.');
                     return redirect()->back()->withInput();
                 } else { 
                     $user = User::find($user->id);

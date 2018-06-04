@@ -30,11 +30,10 @@
 
             <li><a href="{!! route('admin.dashboard')!!}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
             <li><a href="{!! route('users.index')!!}"><i class="fa fa-users"></i> Customers</a></li>
-            <li><a><i class="fa fa-users"></i> Farmers<span class="fa fa-chevron-down"></span></a>
-              <ul class="nav child_menu">
-                <li><a href="{!! route('admin.farmers.index')!!}">All Farmers</a></li>
-                <!-- <li><a href="{!! route('admin.farmers.add')!!}">Add Farmer</a></li> -->
-              </ul>
+            <li><a href="{!! route('admin.farmers.index')!!}"><i class="fa fa-users"></i> Farmers<!-- <span class="fa fa-chevron-down"></span> --></a>
+              <!-- <ul class="nav child_menu">
+                <li><a href="{!! route('admin.farmers.index')!!}">Farmers</a></li>
+              </ul> -->
             </li>
 
             <li><a><i class="fa fa-edit"></i> Categories Manager <span class="fa fa-chevron-down"></span></a>
@@ -55,7 +54,7 @@
                   <li><a href="{!! route('admin.emailTemplates.add')!!}">Add Email Template</a></li>
                 </ul>
             </li>
-            <li><a href="{!! route('admin.subscribers.index')!!}"><i class="fa fa-cog"></i> Subscribers</a></li>
+            <li><a href="{!! route('admin.subscribers.index')!!}"><i class="fa fa-cog"></i> Feedback</a></li>
             <li><a href="{!! route('settings.index')!!}"><i class="fa fa-cog"></i> Settings</a></li>
 
           </ul>

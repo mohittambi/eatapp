@@ -14,7 +14,7 @@
                     </div>
                     <div class="col-sm-6 right_sect p-lr25">
                         <h4 class="sub_head2 m-top25 m-bottom0 red">Forgot Password</h4>
-                        <p class="m-bottom30">Hello! Let’s get started</p>
+                        <p class="m-bottom30"></p>
                         {!! Form::model(null, ['method' => 'POST','route' => ['front.post.forgotPassword'],'class'=>'validate','id'=>'signin-form']) !!}
                         {{ csrf_field() }}
                         @include('message')
@@ -27,7 +27,7 @@
                             <div class="submit m-top30">
                                 <input type="submit"  value="Submit" class="btn btn-red submitbtn">
                             </div>
-                            <p class="m-bottom30">Don’t have an account? <a href="signup" class="red"> Sign In</a></p>
+                            <!-- <p class="m-bottom30">Don’t have an account? <a href="signup" class="red"> Sign Up</a></p> -->
                             
                         </form>
                     </div>

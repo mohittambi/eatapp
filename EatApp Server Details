@@ -1,0 +1,29 @@
+phpmyadmin
+url:http://45.33.14.25/phpmyadmin
+user:root
+pass:<nhzIndia@2017>
+
+********server info************
+phpmyadmin
+url:http://45.33.14.25/phpmyadmin
+user:root
+pass:<nhzIndia@2017>
+
+ssh details for file manager
+Url : ssh SysAdmin@45.33.14.25
+Password : 9H3rtzios
+
+
+********ftp detail**********
+host:45.33.14.25
+user:SysAdmin
+pass:9H3rtzios
+path:/var/www/demo2server.com/public_html/eatapp
+
+****site url********
+http://demo2server.com/eatapp
+
+admin:
+user:admin@eatapp.com
+pass:12345678
+

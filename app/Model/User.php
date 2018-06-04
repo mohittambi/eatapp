@@ -42,13 +42,22 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Model\Customer');
     }
+
+    public function locations()
+    {
+        return $this->hasOne('App\Model\Location');
+    }
     
     public function verifyUser()
     {
         return $this->hasOne('App\VerifyUser');
     } 
 
-     
+    public function social_accounts()
+    {
+        return $this->hasOne('App\Model\SocialAccount');
+    } 
+
 
 
    

@@ -20,13 +20,14 @@
 Route::post('/get-states-list', 'UserController@getStatesList')->name('front.get.statesList');
 
 
-Route::get('/', function () {
-    //return view('welcome');
-    return view('front.home');
-
-});
+//Route::get('/', function () {
+//    //return view('welcome');
+//    return view('front.home');
+//
+//});
 $this->group(['namespace' => 'Front'], function () {
 	$this->post('/contact-form', 'FrontController@contactForm')->name('front.post.contactForm');
+	$this->get('/', 'FrontController@home')->name('front.home');
 	$this->get('/home', 'FrontController@home')->name('front.home');
 	$this->get('/signin', 'FrontController@signin')->name('front.login.signin');
 	$this->post('/signin', 'FrontController@makelogin')->name('front.post.signin');
@@ -36,6 +37,13 @@ $this->group(['namespace' => 'Front'], function () {
 
 	$this->get('/my-profile', 'FrontController@profile')->name('front.page.profile');
 	$this->post('/my-profile', 'FrontController@updateprofile')->name('front.post.profile');
+
+	$this->get('/settings', 'FrontController@editSettings')->name('front.page.settings');
+	$this->post('/settings', 'FrontController@updateSettings')->name('front.update.settings');
+	$this->post('/calendar-days', 'FrontController@updateNonAvailibilityDays')->name('front.calendar');
+
+	$this->get('/change-password', 'FrontController@changePassword')->name('front.login.changePassword');
+	$this->post('/change-password', 'FrontController@postchangePassword')->name('front.post.changePassword');
 	
 });
 Route::post('/forgot-password', 'Auth\ForgotPasswordController@forgot')->name('front.post.forgotPassword');
@@ -56,9 +64,6 @@ $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminLo
 	$this->PATCH('/my-profile/{slug}', "UserController@updateMyProfile")->name('admin.update.profile');
 
 	$this->resource('settings', 'SettingsController');
-
-
-
 
 	$this->get('/customers', 'UserController@index')->name('users.index');
 	$this->post('/customers/datatables', 'UserController@userListWithDatatable')->name('admin.users.datatables');
@@ -87,7 +92,9 @@ $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminLo
 	$this->post('/farmers/edit/{id}', 'FarmerController@update')->name('admin.farmers.update');
 	$this->post('/farmers/delete/{id}', 'FarmerController@destroy')->name('admin.farmers.delete');
 	
-
+	// $this->resource('front-pages', 'FrontPagesController');
+	// $this->post('/front-pages/datatables', 'FrontPagesController@FarmerListWithDatatable')->name('admin.farmers.datatables');
+	// $this->post('/front-pages/status-update', 'FrontPagesController@FarmerStatusUpdate')->name('admin.farmers.status.update');
 
 	$this->get('/categories', 'CategoryController@index')->name('admin.categories.index');
 	$this->get('/categories/add', 'CategoryController@create')->name('admin.categories.add');
@@ -124,12 +131,12 @@ $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminLo
 	$this->post('/emailTemplates/delete/{id}', 'EmailTemplateController@destroy')->name('admin.emailTemplates.delete');
 
 
-	$this->get('/subscribers', 'SubscriberController@index')->name('admin.subscribers.index');
+	$this->get('/feedback', 'SubscriberController@index')->name('admin.subscribers.index');
 	// $this->get('/subscribers/add', 'SubscriberController@create')->name('admin.subscribers.add');
 	// $this->post('/subscribers/add', 'SubscriberController@store')->name('admin.subscribers.store');
-	$this->post('/subscribers/datatables', 'SubscriberController@SubscribersListWithDatatable')->name('admin.subscribers.datatables');
-	$this->post('/subscribers/status-update', 'SubscriberController@SubscribersStatusUpdate')->name('admin.subscribers.status.update');
-	$this->get('/subscribers/{id}', 'SubscriberController@show')->name('admin.subscribers.view');
+	$this->post('/feedback/datatables', 'SubscriberController@SubscribersListWithDatatable')->name('admin.subscribers.datatables');
+	$this->post('/feedback/status-update', 'SubscriberController@SubscribersStatusUpdate')->name('admin.subscribers.status.update');
+	$this->get('/feedback/{id}', 'SubscriberController@show')->name('admin.subscribers.view');
 	$this->get('/subscribers/edit/{id}', 'SubscriberController@edit')->name('admin.subscribers.edit');
 	$this->post('/subscribers/edit/{id}', 'SubscriberController@update')->name('admin.subscribers.update');
 	$this->post('/subscribers/delete/{id}', 'SubscriberController@destroy')->name('admin.subscribers.delete');

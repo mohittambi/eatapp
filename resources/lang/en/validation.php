@@ -88,6 +88,7 @@ return [
     'uploaded'             => 'The :attribute failed to upload.',
     'url'                  => 'The :attribute format is invalid.',
     'is_valid_user'        => 'USERNOTFOUND',
+    'is_valid_farmer_code' => 'You have entered an invalid farmer code.',
 
     /*
     |--------------------------------------------------------------------------

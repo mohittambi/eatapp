@@ -10,6 +10,6 @@ class SocialAccount extends Model
     protected $fillable = array('user_id', 'social_id','social_type');
 
     public function getAssociateUserWithSocial() {
-        return $this->belongsTo('App\User', 'user_id');
+        return $this->belongsTo('App\Model\User', 'user_id');
     }
 }

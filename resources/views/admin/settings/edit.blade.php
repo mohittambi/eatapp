@@ -21,45 +21,38 @@
                     {!! Form::model($row, ['method' => 'PATCH','route' => [$model.'.update', $row->slug],'class'=>'form-horizontal validate','enctype'=>'multipart/form-data','id'=>'demo-form2']) !!}
                     {{ csrf_field() }}
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Key <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Key<span class="required">*</span> :
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          
-                           
-                           {!! Form::text('name', null, [
-                                                                    'maxlength'=>'191',
-                                                                    'class'=>'form-control col-md-7 col-xs-12',
-                                                                    'placeholder'=>'Key','required'=>true,'readonly'=>true]) !!}                      
+                          {!! Form::text('name', null, ['maxlength'=>'191', 'class'=>'form-control col-md-7 col-xs-12', 'placeholder'=>'Key', 'required'=>true, 'readonly'=>true]) !!}                      
                         </div>
                       </div>
-                             <div class="box-body">
-                <div class="form-group">
-                    <label for="first-name" class="control-label col-md-3 col-sm-3 col-xs-12"> @if($row->parameter_type=='file')
-                                    Upload Document:
-                                   @else
-                                    Value:
-                                   @endif</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                    @if($row->parameter_type=='number')
-                                       {!! Form::number('description', null,['maxlength'=>'500','class'=>'form-control  col-md-7 col-xs-12','placeholder'=>'Value','required'=>true,'min'=>0]) !!}
+                      <div class="box-body">
+                        <div class="form-group">
+                          <label for="description" class="control-label col-md-3 col-sm-3 col-xs-12">  @if($row->parameter_type=='file')
+                              Upload Document:
+                          @else
+                              Value<span class="required">*</span> :
+                          @endif</label>
+                          <div class="col-md-6 col-sm-6 col-xs-12">
+                          @if($row->parameter_type=='number')
+                            {!! Form::number('description', null,['maxlength'=>'500','class'=>'form-control  col-md-7 col-xs-12','placeholder'=>'Value','required'=>true,'min'=>0]) !!}
 
-                                       @elseif($row->parameter_type=='email')
-                                       {!! Form::email('description', null,['maxlength'=>'500','class'=>'form-control  col-md-7 col-xs-12','placeholder'=>'Value','required'=>true,'min'=>0]) !!}
+                          @elseif($row->parameter_type=='email')
+                            {!! Form::email('description', null,['maxlength'=>'500','class'=>'form-control  col-md-7 col-xs-12','placeholder'=>'Value','required'=>true,'min'=>0]) !!}
 
-                                       @elseif($row->parameter_type=='url')
-                                       {!! Form::url('description', null,['maxlength'=>'500','class'=>'form-control  col-md-7 col-xs-12','placeholder'=>'Value','required'=>true]) !!}
+                          @elseif($row->parameter_type=='url')
+                            {!! Form::url('description', null,['maxlength'=>'500','class'=>'form-control  col-md-7 col-xs-12','placeholder'=>'Value','required'=>true]) !!}
 
-                                        @elseif($row->parameter_type=='boolean')
-                                       {!! Form::select('description', ['1'=>'Yes','0'=>'No'],null,['class'=>'form-control  col-md-7 col-xs-12','required'=>true]) !!}
+                          @elseif($row->parameter_type=='boolean')
+                            {!! Form::select('description', ['1'=>'Yes','0'=>'No'],null,['class'=>'form-control  col-md-7 col-xs-12','required'=>true]) !!}
 
-                                    
-
-                                       @elseif($row->parameter_type=='file')
-                                        <input type = "file" class="form-control" name = "description" >
-                                    @else
-                                       {!! Form::text('description', null,['maxlength'=>'500','class'=>'form-control','title'=>'Please enter value','placeholder'=>'Value','required'=>true]) !!}
-                                    @endif
-                        
+                          @elseif($row->parameter_type=='file')
+                            <input type = "file" class="form-control" name="description" >
+                          @else
+                            {!! Form::text('description', null,['maxlength'=>'500','class'=>'form-control','title'=>'This is field is required.','placeholder'=>'Value','required'=>true]) !!}
+                          @endif
+            
                     </div>
                 </div>
             </div>

@@ -62,7 +62,7 @@ class SettingsController extends Controller
             }
             else
             {
-                Session::flash('warning', 'Invalid Request');
+                Session::flash('warning', 'Invalid Request.');
                 return redirect()->back();
             }
             
@@ -87,9 +87,6 @@ class SettingsController extends Controller
             {
                 $request->description = $request->start_from.'-'.$request->end_from;
             }
-
-
-
 
             if($row->parameter_type == 'file' )
             {

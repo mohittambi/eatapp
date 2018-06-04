@@ -4,6 +4,8 @@
 <section id="signup" class="main_section">
     <div class="container">
         <div class="row">
+            <h2 class="animated">Sign Up</h2>
+            <hr class="border-line">
             <div class="col-md-8 col-md-offset-2 col-sm-10 col-sm-offset-1 col-xs-12">
                 <div class="inner_main clearfix">
                     <div class="col-sm-12 right_sect p-lr25 p-top30 m-bottom20">
@@ -32,7 +34,16 @@
                                     <label>Email Address <span class="required">*</span></label>
                                     {!! Form::email('email', null, ['class'=>'form-control col-md-7 col-xs-12','placeholder'=>'Email','required'=>true]) !!}
                                 </div>
-
+                                <!-- <div class="form-group">
+                                    <label>Location Name <small class="text-lowercase smallt">(if applicable)</small></label>
+                                    {!! Form::text('location_name', null, ['maxlength'=>'255','placeholder' => 'Type Location Name', 'class'=>'form-control']) !!} 
+                                </div> -->
+                                <div class="form-group">
+                                    <label>Address <span class="required">*</span></label>
+                                    {!! Form::text('address', null, ['maxlength'=>'255','placeholder' => 'Address', 'required'=>true, 'class'=>'form-control', 'id'=>'autocomplete']) !!} 
+                                    {!! Form::hidden('latitude', null, ['class'=>'form-control', 'id'=>'latitude']) !!}
+                                    {!! Form::hidden('longitude', null, ['class'=>'form-control', 'id'=>'longitude']) !!}
+                                </div>
                                     <div class="form-group clearfix">
                                         <label>Phone Number</label>
                                         <div class="input-group clearfix">
@@ -73,4 +84,34 @@
     </div>
 </section>
 <!--form section end now-->
+
+
+
+<script>
+
+$("#autocomplete").change(function(){
+    $("#latitude").val('');
+    $("#longitude").val('');
+});
+function initialize() 
+{
+    var input = document.getElementById('autocomplete');
+    var options = {};            
+    var autocomplete = new google.maps.places.Autocomplete(input, options);
+    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+            var place = autocomplete.getPlace();
+            var lat = place.geometry.location.lat();
+            var lng = place.geometry.location.lng();
+            $("#latitude").val(lat);
+            $("#longitude").val(lng); 
+        });
+}
+             
+google.maps.event.addDomListener(window, 'load', initialize);
+
+ 
+</script>
+
+@include('googlemapjs')
+
 @endsection

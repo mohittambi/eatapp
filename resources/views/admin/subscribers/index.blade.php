@@ -9,7 +9,6 @@
           <div class="x_panel">
             <div class="x_title">
               <h2>{!! $title !!}</h2>
-              <a href="{!! route('admin.farmers.add') !!}" style="float:right;">Add Email Template</a>
               <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -20,9 +19,9 @@
                   <th width="10%">Id</th>
                   <th width="20%">Name </th>
                   <th width="25%">Email </th>
-                  <th width="10%">Send Email</th>
+                  <th width="20%">Comment</th>
                   <th width="15%">Created At</th>
-                  <th width="10%">Status</th>
+                  <!-- <th width="10%">Status</th> -->
                   <th width="10%" class="noneedtoshort">Action</th>
                 </tr>
                 </thead>
@@ -88,9 +87,9 @@ function changeStatus(id)
       { data: 'id', name: 'id', orderable:true },
       { data: 'name', name: 'name', orderable:true  },
       { data: 'email', name: 'email', orderable:true},
-      { data: 'sendEmail', name: 'sendEmail', orderable:true},
+      { data: 'comment', name: 'comment', orderable:true},
       { data: 'created_at', name: 'created_at', orderable:false },
-      { data: 'status', name: 'status', orderable:false},
+      // { data: 'status', name: 'status', orderable:false},
       { data: 'action', name: 'action', orderable:false }  
     ],
     "columnDefs": [

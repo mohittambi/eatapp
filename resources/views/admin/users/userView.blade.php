@@ -32,13 +32,12 @@
                         </li>
                          <li> <b>Gender:</b> {!! $row->gender=='M'?'Male':'Female' !!}
                         </li>
-                         <li> <b>Phone Number:</b> +{!! $row->getRelatedCountry->phonecode.$row->phone_number !!}
+                         <li> <b>Phone Number:</b> +{!! $row->phonecode.$row->phone_number !!}
                         </li>
-
+                        <?php if(isset($row->getRelatedCountry->name) && !empty($row->getRelatedCountry->name)){?>
                          <li> <b>Country:</b> {!! $row->getRelatedCountry->name !!}
                         </li>
-
-                         <li> <b>Zipcode:</b> {!! $row->zipcode !!}
+                        <?php } ?>
                         </li>
                         <li> <b>Created At:</b> {!! date('d-m-Y H:i A',strtotime($row->created_at)) !!}
                         </li>

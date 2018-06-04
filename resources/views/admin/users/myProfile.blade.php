@@ -16,9 +16,6 @@
                   <div class="x_content">
                     <br />
 
-
-                   
-
                     @include('message')
                     {!! Form::model($row, ['method' => 'PATCH','route' => ['admin.update.profile', $row->slug],'class'=>'form-horizontal validate','enctype'=>'multipart/form-data','id'=>'demo-form2']) !!}
                     {{ csrf_field() }}

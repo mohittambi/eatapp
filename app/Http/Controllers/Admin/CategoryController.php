@@ -299,11 +299,14 @@ class CategoryController extends Controller
         {
             foreach ($posts as $list)
             {
-                
+                if(strlen($list->description)>75)
+                    {$description = substr($list->description, 0, 75).' ...';}
+                else
+                    {$description = $list->description;}
                 $nestedData['id'] = $list->id;
                 $nestedData['created_at'] = date('d-m-Y H:i A',strtotime($list->created_at));
                 $nestedData['status'] = getStatus($list->status,$list->id);
-                $nestedData['description'] =  $list->description;
+                $nestedData['description'] = $description;
                 $nestedData['name'] =  ucfirst($list->name);
                 $nestedData['action'] =  getButtons([
                                 //['key'=>'view','link'=>route('admin.categories.view',$list->id)],

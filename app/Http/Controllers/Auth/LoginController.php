@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Model\User;
 use App\Model\Farmer;
+use App\Model\Location;
 
 class LoginController extends Controller
 {
@@ -72,10 +73,12 @@ class LoginController extends Controller
             $validatorRules = [
                 'first_name' => 'required|max:255',
                 'last_name' => 'required|max:255',
-                'email' => 'required|max:255',
-                'password' => 'required|min:8',
+                'email' => 'required|max:255|unique:users,email,' . $request->user_id,
+                'password' => 'required|max:20|min:8',
                 'confirm_password' => 'required|same:password',
-				'phone_number' => 'numeric'
+				'phone_number' => 'numeric',
+                'address'       => 'required|max:255',
+                'location_name' => 'max:255',
             ];
             $validator = Validator::make($request->all(),$validatorRules);
             if ($validator->fails()) 
@@ -85,7 +88,6 @@ class LoginController extends Controller
             }
             else
             {
-
                 $user = new User();
                 $farmer = new Farmer();
 
@@ -98,7 +100,7 @@ class LoginController extends Controller
                 $user->password = Hash::make(Input::get('password'));
                 $user->country_id = $request->country_id;
                 $user->phone_number = $request->phone_number;
-                $user->role = 'C';
+                $user->role = 'F';
                 $user->status = 0;
                 $user->verified = 1;
 
@@ -110,6 +112,15 @@ class LoginController extends Controller
                 $farmer->farmer_code = $this->generateRandomString(4);
 
                 $farmer->save();
+
+                $location = new Location();
+
+                $location->user_id       = $user->id;
+                $location->address       = $request->address;
+                $location->latitude      = $request->latitude;
+                $location->longitude     = $request->longitude;
+                $location->location_name = $request->location_name?$request->location_name:null;
+                $location->save();
                 
                 $data['user_id'] = $user->id;
                 $data['email'] = $request->email;

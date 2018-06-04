@@ -34,7 +34,7 @@ if (! function_exists('mailSend')) {
                 Mail::send('emails.contact_form', ['data' => $data], function($message) use ($data)
                 {
                     $message->from('oliver7415@googlemail.com', 'EATAPP');
-                    $message->to( $data['email'] )->subject("Contact Form" );
+                    $message->to( $data['adminEmail'] )->subject("Contact Form" );
 
                 }); 
                 //Session::flash('success', 'Change Password link successfully sent on your email.');
@@ -77,7 +77,7 @@ if (! function_exists('mailSend')) {
                 Mail::send('emails.front_signup', ['data' => $data], function($message) use ($data)
                 {
                     $message->from('oliver7415@googlemail.com', 'EATAPP');
-                    $message->to( $data['email'] )->subject("Signup Requst" );
+                    $message->to( $data['email'] )->subject("Email Confirmation" );
 
                 }); 
                 Session::flash('success', 'Confirmation link successfully sent on your email.');
@@ -102,7 +102,7 @@ if (! function_exists('mailSend')) {
                 Mail::send('emails.app_signup', ['data' => $data], function($message) use ($data)
                 {
                     $message->from('oliver7415@googlemail.com', 'EATAPP');
-                    $message->to( $data['email'] )->subject("Signup Requst From App" );
+                    $message->to( $data['email'] )->subject("Email Confirmation From App" );
 
                 }); 
                 Session::flash('success', 'Confirmation link successfully sent on your email.');

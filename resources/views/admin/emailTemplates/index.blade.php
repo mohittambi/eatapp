@@ -9,7 +9,7 @@
           <div class="x_panel">
             <div class="x_title">
               <h2>{!! $title !!}</h2>
-              <a href="{!! route('admin.farmers.add') !!}" style="float:right;">Add Email Template</a>
+              <a href="{!! route('admin.emailTemplates.add') !!}" style="float:right;">Add Email Template</a>
               <div class="clearfix"></div>
             </div>
             <div class="x_content">

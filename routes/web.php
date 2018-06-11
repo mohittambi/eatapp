@@ -38,14 +38,19 @@ $this->group(['namespace' => 'Front'], function () {
 	$this->get('/my-profile', 'FrontController@profile')->name('front.page.profile');
 	$this->post('/my-profile', 'FrontController@updateprofile')->name('front.post.profile');
 
+
 	$this->get('/settings', 'FrontController@editSettings')->name('front.page.settings');
 	$this->post('/settings', 'FrontController@updateSettings')->name('front.update.settings');
+	$this->post('/settings-amenity', 'FrontController@amenitySettings')->name('front.amenity.settings');
 	$this->post('/calendar-days', 'FrontController@updateNonAvailibilityDays')->name('front.calendar');
+	$this->post('/settings-banner', 'FrontController@bannerSettings')->name('front.banner.settings');
 
 	$this->get('/change-password', 'FrontController@changePassword')->name('front.login.changePassword');
 	$this->post('/change-password', 'FrontController@postchangePassword')->name('front.post.changePassword');
 	
 });
+
+
 Route::post('/forgot-password', 'Auth\ForgotPasswordController@forgot')->name('front.post.forgotPassword');
 Route::post('/signup', 'Auth\LoginController@makeLoginFromSignup')->name('front.post.signup');
 Route::get('/email-confirmation/verify/{token}', 'Auth\RegisterController@VerifyUser');
@@ -91,6 +96,16 @@ $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminLo
 	$this->get('/farmers/edit/{id}', 'FarmerController@edit')->name('admin.farmers.edit');
 	$this->post('/farmers/edit/{id}', 'FarmerController@update')->name('admin.farmers.update');
 	$this->post('/farmers/delete/{id}', 'FarmerController@destroy')->name('admin.farmers.delete');
+
+	$this->get('/amenities', 'AmenitiesController@index')->name('admin.amenities.index');
+	$this->post('/amenities/datatables', 'AmenitiesController@AmenityListWithDatatable')->name('admin.amenities.datatables');
+	$this->post('/amenities/status-update', 'AmenitiesController@AmenityStatusUpdate')->name('admin.amenity.status.update');
+	$this->get('/amenities/add', 'AmenitiesController@create')->name('admin.amenities.add');
+	$this->post('/amenities/add', 'AmenitiesController@store')->name('admin.amenities.store');
+	$this->get('/amenities/{id}', 'AmenitiesController@show')->name('admin.amenities.view');
+	$this->get('/amenities/edit/{id}', 'AmenitiesController@edit')->name('admin.amenities.edit');
+	$this->post('/amenities/edit/{id}', 'AmenitiesController@update')->name('admin.amenities.update');
+	$this->post('/amenities/delete/{id}', 'AmenitiesController@destroy')->name('admin.amenities.delete');
 	
 	// $this->resource('front-pages', 'FrontPagesController');
 	// $this->post('/front-pages/datatables', 'FrontPagesController@FarmerListWithDatatable')->name('admin.farmers.datatables');

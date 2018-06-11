@@ -9,8 +9,13 @@ use App\Model\Farmer;
 use App\Model\FarmerCategory;
 use App\Model\Setting;
 use App\Model\Location;
+use App\Model\Country;
 use App\Model\ContactForm as ContactForm;
 use App\Model\FarmerNonAvailibility as FarmerNA;
+use App\Model\FarmerWorkingHour as FarmerWH;
+use App\Model\Amenity;
+use App\Model\FarmerAmenity;
+use App\Model\FarmerBanner;
 use DB;
 use Illuminate\Support\Facades\Input;
 use Session;
@@ -49,10 +54,11 @@ class FrontController extends Controller
         }
     	$title= 'EATAPP | SignUp'; 
         $breadcrumb = ['EatApp'=>''];
-        $countryList = array_column($this->getCountryList(), 'name','id');
+        //$countryList = array_column($this->getCountryList(), 'name','id');
+        $countryData = Country::orderBy('sortname','asc')->pluck('sortname','phonecode');
 		$settingValue = $this->settingValue;
 		
-        return view('front.login.signup',compact('title','row','breadcrumb','countryList','settingValue'));
+        return view('front.login.signup',compact('title','row','breadcrumb','settingValue','countryData'));
     }
 
     public function signin()
@@ -193,7 +199,8 @@ class FrontController extends Controller
         $title= 'EATAPP | My Profile';
         $breadcrumb = ['EatApp'=>'','My Profile'=>''];
 		$settingValue = $this->settingValue;
-        $countryList = array_column($this->getCountryList(), 'name','id');
+        $countryData = Country::orderBy('sortname','asc')->pluck('sortname','phonecode');
+        //$countryList = array_column($this->getCountryList(), 'sortname','phonecode');
         $categoryList = array_column($this->getCategoryList(), 'name','id');
 		
 		if($userDetails->farmer_categories->toArray()){
@@ -205,8 +212,7 @@ class FrontController extends Controller
 			$selectedCatList[] ='';
 		}
 
-
-        return view('front.page.profile',compact('title','userDetails','breadcrumb','countryList','categoryList','selectedCatList','settingValue'));
+        return view('front.page.profile',compact('title','userDetails','breadcrumb','categoryList','selectedCatList','settingValue','countryData'));
     }
 
     public function updateprofile(Request $request)
@@ -227,8 +233,18 @@ class FrontController extends Controller
                 //'email' => 'required|email|max:255|unique:users,email,' . $user->id,
                 'address'       => 'required|max:255',
                 'location_name' => 'max:255',
+                'company_name'  => 'required',
+                'vat_number'    => 'required',
+                'cf'            => 'max:16',
+                'latitude'      => 'required',
+                'description'   => 'required',
+                'phone_number'  => 'digits_between:7,15',
+
             ];
-            $validator = Validator::make($request->all(),$validatorRules);
+            $messages = [
+                'latitude.required'    => 'Invalid address.',
+            ];
+            $validator = Validator::make($request->all(),$validatorRules,$messages);
             if ($validator->fails()) 
             {
                 return redirect()->back()->withInput()->withErrors($validator->errors());
@@ -242,7 +258,7 @@ class FrontController extends Controller
                 $user->last_name=$request->last_name;
                 $user->full_name=$full_name;
                 //$user->email=$request->email;
-                $user->country_id=$request->country_id;
+                $user->phonecode=$request->phonecode;
                 //$user->status=$request->status;
 
                 if($request->file('profile_pic'))
@@ -275,7 +291,10 @@ class FrontController extends Controller
 
                 $farmer->user_id = $user->id;
                 $farmer->description=$request->description;
-                //$farmer->categories=$request->category;
+                $farmer->company_name=$request->company_name;
+                $farmer->vat_number=$request->vat_number;
+                $farmer->cf=$request->cf?$request->cf:'';
+                
                 
                 $farmer->save();
 
@@ -320,44 +339,185 @@ class FrontController extends Controller
         $title= 'EATAPP | My Settings';
         $breadcrumb = ['EatApp'=>'','My Settings'=>''];
         $settingValue = $this->settingValue;
-        $all_na = FarmerNA::where('user_id',$userDetails->id)->select('start_date as start')->get()->toJson();
         
-        return view('front.page.settings',compact('title','userDetails','breadcrumb','settingValue','all_na'));
+        $all_na = FarmerNA::where('user_id',$userDetails->id)->select('start_date as start','title')->get()->toJson();
+        $days = ['monday'=>'Monday','tuesday'=>'Tuesday','wednesday'=>'Wednesday','thursday'=>'Thursday','friday'=>'Friday','saturday'=>'Saturday','sunday'=>'Sunday'];
+
+        if(FarmerWH::where('user_id',$userDetails->id)->exists())
+        {
+                $row = FarmerWH::where('user_id',$userDetails->id)->get();
+                for($i=0;$i<$row->count();$i++){
+                    //dd($row[$i]->day_name);
+                    $keys = array_keys($days);
+                    $data[$i]['day_name']     = $days[$keys[$i]];
+                    $data[$i]['opening_time'] = date('H:i', strtotime($row[$i]->opening_time));
+                    $data[$i]['closing_time'] = date('H:i', strtotime($row[$i]->closing_time));
+                    $data[$i]['visitors']     = $row[$i]->visitors;
+                }
+        }else{
+            $i=0;
+            foreach($days as $day){
+                    $data[$i]['day_name']     = $day;
+                    $data[$i]['opening_time'] = '10:00';
+                    $data[$i]['closing_time'] = '18:00';
+                    $data[$i]['visitors']     = '1';
+                    $i++;
+                }
+        }
+
+        $all_amenities = Amenity::where('status','1')->get();
+        $user_selected_amenity = FarmerAmenity::select('amenity_id')->where('user_id',$userDetails->id)->pluck('amenity_id')->toArray();
+        $farmers_images = FarmerBanner::select('id')->where('user_id',$userDetails->id)->get()->toArray();
+        $farmers_banners = FarmerBanner::select('name','description')->where('user_id',$userDetails->id)->pluck('name')->toArray();
+        $farmers_banners_desc = FarmerBanner::select('description')->where('user_id',$userDetails->id)->pluck('description')->toArray();
+
+        return view('front.page.settings',compact('title','data','breadcrumb','settingValue','all_na','days','all_amenities','user_selected_amenity','userDetails','farmers_banners','farmers_banners_desc','farmers_images'));
     }
 
     public function updateNonAvailibilityDays(Request $request)
     {
-        $user_slug = Auth::user()->slug;
-        $userDetails = User::where('slug',$user_slug)->where('role','F')->where('verified','1')->first();
-        $date_exist = FarmerNA::where('user_id',$userDetails->id)->where('start_date',$request->date)->exists();
-        // dd($date_exist);
-        if($request->type == "add"){
-            if($date_exist){
-                return true;
+        try{
+            $user_slug = Auth::user()->slug;
+            $userDetails = User::where('slug',$user_slug)->where('role','F')->where('verified','1')->first();
+            $date_exist = FarmerNA::where('user_id',$userDetails->id)->where('start_date',$request->date)->exists();
+            // dd($date_exist);
+            if($request->type == "add"){
+                if($date_exist){
+                    return true;
+                }
+                else
+                {
+                    $farmer_na = new FarmerNA();
+                    $farmer_na->user_id = $userDetails->id;
+                    $farmer_na->start_date = $request->date;
+                    $farmer_na->save();
+                }
             }
-            else
-            {
-                $farmer_na = new FarmerNA();
-                $farmer_na->user_id = $userDetails->id;
-                $farmer_na->start_date = $request->date;
-                $farmer_na->save();
+            else if ($request->type == "remove") {
+
+                $farmer_na = FarmerNA::where('user_id', $userDetails->id)->where('start_date',$request->date)->delete();
             }
-        }
-        else if ($request->type == "remove") {
 
-            $farmer_na = FarmerNA::where('user_id', $userDetails->id)->where('start_date',$request->date)->delete();
+            return ($farmer_na);
         }
 
-        return ($farmer_na);
+        catch(\Exception $e)
+        {
+           $msg = $e->getMessage();
+           Session::flash('warning', $msg);
+           return redirect()->back()->withInput();
+        }
     }
 
     public function updateSettings(Request $request)
     {
-        $user = User::where('slug',$user_slug)->where('role','F')->where('verified','1')->first();
+        unset($request['_token']);
+        
+        $user_slug = Auth::user()->slug;
+        $userDetails = User::where('slug',$user_slug)->where('role','F')->where('verified','1')->first();
 
+        if(FarmerWH::where('user_id',$userDetails->id)->exists())
+        {
+            foreach ($request->all() as $value) {
+                $row = FarmerWH::where('user_id',$userDetails->id)->where('day_name',$value[0])->first();
+                $row->user_id      = $userDetails->id;
+                $row->day_name     = $value[0];
+                $row->opening_time = $value[1];
+                $row->closing_time = $value[2];
+                $row->visitors     = $value[3];
+                $row->save();
+            }
+        }
+        else{
+            foreach ($request->all() as $value) {
+                $row = new FarmerWH();
+                $row->user_id      = $userDetails->id;
+                $row->day_name     = $value[0];
+                $row->opening_time = $value[1];
+                $row->closing_time = $value[2];
+                $row->visitors     = $value[3];
+                $row->save();
+            }
+        }
+        Session::flash('success', 'Farmer settings updated successfully.');
+        return redirect()->back();
+    }
 
-        Session::flash('success', 'Farmer updated successfully.');
-        return redirect()->back()->withInput();
+    public function amenitySettings(Request $request)
+    {
+        unset($request['_token']);
+        $selected_amenity = $request->all();
+        
+        $user_slug = Auth::user()->slug;
+        $userDetails = User::where('slug',$user_slug)->where('role','F')->where('verified','1')->first();
+
+        if(FarmerAmenity::where('user_id',$userDetails->id)->exists())
+        {
+            FarmerAmenity::where('user_id', $userDetails->id)->delete();
+        }
+            foreach ($selected_amenity as $key => $value) {
+                $row           = new FarmerAmenity();
+                $row->user_id  = $userDetails->id;
+                $row->amenity_id = $key;
+                $row->save();
+            }
+        Session::flash('success', 'Farmer amenities updated successfully.');
+        return redirect()->back();
+        
+
+    }
+
+    public function bannerSettings(Request $request)
+    {
+        unset($request['_token']);
+        $farmer_images_detail = $request->all();
+        
+        $user_slug = Auth::user()->slug;
+        $userDetails = User::where('slug',$user_slug)->where('role','F')->where('verified','1')->first();
+        
+        $userId = $userDetails->id;
+            for ($i=0;$i<4;$i++) {
+                @$image='';
+                if($request->file('farmer_banner_image.'.$i))
+                {
+                    $file = $request->file('farmer_banner_image.'.$i);
+                    @$image = uploadwithresize($file,'farmers-banners');
+                    
+                    // if($previous_row->image)
+                    // {
+                    //     unlinkfile('farmers-banners',$previous_row->image);
+                    // }
+
+                    FarmerBanner::where('id',$request['ids'][$i])->update(['name'  =>  @$image]);                     
+                }
+                //$row->description = $farmer_images_detail['farmer_banner_text'][$i];
+
+                if(isset($request['ids'])){
+
+                    FarmerBanner::where('id',$request['ids'][$i])
+                                            ->update(
+                                               ['user_id'       =>  @$userId,
+                                                'description'   =>  $farmer_images_detail['farmer_banner_text'][$i]
+                                                ]
+                                        ); 
+
+                }else{
+                    FarmerBanner::Create(
+                                           ['user_id'       =>  @$userId,
+                                            'name'          =>  @$image, 
+                                            'description'   =>  $farmer_images_detail['farmer_banner_text'][$i]
+                                            ]
+                                        ); 
+
+                }
+                //$row->save(); 
+                
+            }
+            
+        Session::flash('success', 'Farmer banners updated successfully.');
+        return redirect()->back();
+
+        
     }
 
 

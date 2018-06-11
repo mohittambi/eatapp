@@ -71,16 +71,22 @@ class LoginController extends Controller
         try
         {
             $validatorRules = [
-                'first_name' => 'required|max:255',
-                'last_name' => 'required|max:255',
-                'email' => 'required|max:255|unique:users,email,' . $request->user_id,
-                'password' => 'required|max:20|min:8',
-                'confirm_password' => 'required|same:password',
-				'phone_number' => 'numeric',
-                'address'       => 'required|max:255',
-                'location_name' => 'max:255',
+                'first_name'        => 'required|max:255',
+                'last_name'         => 'required|max:255',
+                'email'             => 'required|max:255|unique:users,email,' . $request->user_id,
+                'company_name'      => 'required',
+                'password'          => 'required|max:20|min:8',
+                'confirm_password'  => 'required|same:password',
+				'phone_number'      => 'digits_between:7,15',
+                'address'           => 'required|max:255',
+                'location_name'     => 'max:255',
+                'phonecode'         => 'required',
+                'latitude'          => 'required',
             ];
-            $validator = Validator::make($request->all(),$validatorRules);
+            $messages = [
+                'latitude.required'    => 'Invalid address.',
+            ];
+            $validator = Validator::make($request->all(),$validatorRules,$messages);
             if ($validator->fails()) 
             {
                 //dd($validator->errors());
@@ -99,6 +105,7 @@ class LoginController extends Controller
                 $user->email = $request->email;
                 $user->password = Hash::make(Input::get('password'));
                 $user->country_id = $request->country_id;
+                $user->phonecode = $request->phonecode;
                 $user->phone_number = $request->phone_number;
                 $user->role = 'F';
                 $user->status = 0;
@@ -109,6 +116,7 @@ class LoginController extends Controller
                 $farmer->user_id = $user->id;
                 //$farmer->categories = $request->categories;
                 $farmer->description = $request->description;
+                $farmer->company_name = $request->company_name;
                 $farmer->farmer_code = $this->generateRandomString(4);
 
                 $farmer->save();

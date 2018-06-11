@@ -24,14 +24,14 @@
 </style>
 
 
-<script type="text/javascript">
+<!-- <script type="text/javascript">
 $(document).ready(function(){
     $(".ac").click(function(){
         $("#navbar_d").slideDown(2000);
     });
 });
 </script>
-
+ -->
 
 </script>
 <header>
@@ -77,7 +77,7 @@ $(document).ready(function(){
                <!--  <li ><a href="{!! route('front.page.profile')!!}" data-toggle="collapse" data-target="#navbar_d">MY PROFILE</a></li> -->
             <li><a href="#"  class="ac">MY PROFILE <span class="caret"></span></a>
                 <ul id="navbar_d"   class="dropdown-menu">
-                    <li><a href="#">SETTINGS</a></li>
+                    <li><a href="{!! route('front.page.settings')!!}">SETTINGS</a></li>
                     <li><a href="{!! route('front.page.profile')!!}">EDIT PROFILE</a></li>
                     <li><a href="{!! route('front.login.changePassword')!!}">CHANGE PASSWORD</a></li>
                     <li><a href="{!! route('front.logout')!!}">LOGOUT</a></li>   

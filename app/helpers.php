@@ -154,8 +154,8 @@ if ( ! function_exists('uploadwithresize'))
 {
     function uploadwithresize($file,$path)
     { 
-        $h=200;
-        $w= 200;
+        $h=100;
+        $w= 100;
         $fileName = time().rand(111111111,9999999999).'.'.$file->getClientOriginalExtension();
         $destinationPath    = 'public/uploads/'.$path.'/';
         // upload new image

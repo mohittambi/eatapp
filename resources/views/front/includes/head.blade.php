@@ -22,9 +22,10 @@
     <link href="{{asset('assets/front/css/owl.carousel.min.css')}}" rel="stylesheet">
     <link href="{{asset('assets/front/css/responsive.css')}}" rel="stylesheet" type="text/css">
     <link href="{{asset('assets/front/css/animations.css')}}" rel="stylesheet" type="text/css">
-    <link href="{{asset('assets/front/css/slider.css')}}" rel="stylesheet">
+    <!-- <link href="{{asset('assets/front/css/slider.css')}}" rel="stylesheet"> -->
     <link href="{{asset('assets/front/css/main.css')}}" rel="stylesheet">
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css' />
+    <link href="{{asset('assets/front/css/jquery-clockpicker.min.css')}}" rel="stylesheet">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_temp.png') }}"/>
 
        

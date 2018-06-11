@@ -32,14 +32,20 @@ class AppServiceProvider extends ServiceProvider
 
         Validator::extend('isValidFarmerCode', function($attribute, $value, $parameters)
         {
-            $farmer_code = ( ! empty($parameters)) ? $parameters[0] : 0;
-            $row = Farmer::where('farmer_code',$farmer_code)->first();
-
-            if($row)
+            if(empty($parameters[0]))
             {
-                if(isset($row->farmer_code) && !empty($row->farmer_code))
+                return true;
+            }
+            else{
+                $farmer_code = ( ! empty($parameters)) ? $parameters[0] : 0;
+                $row = Farmer::where('farmer_code',$farmer_code)->first();
+
+                if($row)
                 {
-                    return true;
+                    if(isset($row->farmer_code) && !empty($row->farmer_code))
+                    {
+                        return true;
+                    }
                 }
             }
             return false;

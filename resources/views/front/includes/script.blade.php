@@ -1,8 +1,7 @@
-	<script src="{{asset('assets/front/js/jquery-3.2.1.min.js')}}"></script>
+	<script src="{{asset('assets/front/js/jquery-2.2.4.min.js')}}"></script>
 	<script src="{{asset('assets/front/js/bootstrap.min.js')}}"></script>
-	<script src="{{asset('assets/front/js/owl.carousel.min.js')}}"></script>
+	<!-- <script src="{{asset('assets/front/js/owl.carousel.min.js')}}"></script> -->
 	<script src="{{asset('assets/front/js/css3-animate-it.js')}}"></script>
-	<script src="{{asset('assets/front/js/custom.js')}}"></script>
 	<!-- Scripts -->
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -31,31 +30,11 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js'></script>
 <script>
-
-
     $(document).ready(function() {
 
-	    var date = new Date();
-	    var d = date.getDate();
-	    var m = date.getMonth();
-	    var y = date.getFullYear();
-	    
+	    <?php
+	    if(isset($all_na) && !empty($all_na)){$all_na=$all_na;}else{$all_na='';}?>
 		var all_na = '<?php echo $all_na; ?>' ;
-		//console.log(all_na);
-		//alert(all_na);
-	
-	 //    var events_array = [
-	 //        {
-		//         title: 'Test1',
-		//         start: '2018-06-01',
-		//         tip: 'Personal tip 1'
-		//     },
-		//     {
-		//         title: 'Test2',
-		//         start: '2018-06-02',
-		//         tip: 'Personal tip 2'
-		//     }
-		// ];
 		var events_array = JSON.parse(all_na);
 		
 	    $('#calendar').fullCalendar({
@@ -67,11 +46,17 @@
             defaultView: 'month',
             editable: false,
             selectable: true,
+            select: function(start, end) {
+			    if(start.isBefore(moment())) {
+			        $('#calendar').fullCalendar('unselect');
+			        return false;
+			    }
+			},
 			eventClick: function(calEvent, jsEvent, view) {
-				
+
 				var date =	new Date(calEvent.start);
 		      	date = date.toISOString().slice(0,10);
-		        
+
 		        $.ajax({
 			    	headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 			        url: '{{url('/calendar-days')}}',
@@ -84,32 +69,14 @@
 			        // contentType: false,
 			        // processData: false,
 			        success:function(response){
-
 			        	// console.log(response);
-			        	// alert(response);
 			        	location.reload();
-			        
 			        },
 			    });
 
-
-		      if (calEvent.url) {
-		        alert(
-		          'Clicked ' + calEvent.date + '.\n' +
-		          'Will open ' + calEvent.url + ' in a new tab'
-		        );
-
-		        window.open(calEvent.url);
-
-		        return false; // prevents browser from following link in current tab.
-		      } else {
-		      	var date =	new Date(calEvent.start);
-		      	date = date.toISOString().slice(0,10);
-		        //alert('Clicked ' + date);
-		      }
 		    },
 			dayClick: function(date, jsEvent, view, resourceObj) {
-			    //alert('Date: ' + date.format());
+			if (date.month() ==  view.intervalStart.month()) {
 			    $.ajax({
 			    	headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 			        url: '{{url('/calendar-days')}}',
@@ -122,25 +89,65 @@
 			        // contentType: false,
 			        // processData: false,
 			        success:function(response){
-			        	location.reload();
 			        	// console.log(response);
-			        	// alert(response);
-			        
+			        	location.reload();
 			        },
 			    });
-			    
+			}		    
 			},
-	    	events: events_array,
-	        
+			
+	    	events: events_array, // this is the list of events in json format from database
+	    	eventColor: 'red',
+	    	eventBorderColor: 'red',
 	        
 	    });
 	});
-
-	    
 </script>
+<script type="text/javascript">
+    $(function () {
+        $(".AHR").on("click", function () {
+        	var errorsReport = 0;
+        	for(var i = 0; i<7; i++){
+    			var opening , closing;
+    		    var strOpen = $(".opening"+i).val();
+				opening = strOpen.replace(/:/, "");
+
+    		    var strClose = $(".closing"+i).val();
+				closing = strClose.replace(/:/, "");
+				if(opening>closing){
+					$(".errors"+i).html("Closing time should be greater than opening time.");
+					errorsReport++;
+				}
+	        	//console.log("opening = " + $(".opening"+i).val() +", closing = "+ $(".closing"+i).val());
+	        	//console.log("opening = " + opening +", closing = "+ closing);
+        	}
+        	if(errorsReport==0){
+        		$("#settings-form").submit();
+        	}
+        	setTimeout(function(){ $(".errorsContainer").html("");  }, 5000);
+            //alert("testin");
+        });
+
+    });
+    
+    //setTimeout(function(){ alert("Hello"); }, 3000);
+</script>
+<script src="{{asset('assets/admin/vendors/bootstrap/dist/js/bootstrap.min.js')}}"></script>
+<script src="{{asset('assets/front/js/jquery-clockpicker.min.js')}}"></script>
+<script src="{{asset('assets/admin/custom.min.js')}}"></script>
 <script>
-	
-</script>
-	<script src="{{asset('assets/admin/vendors/bootstrap/dist/js/bootstrap.min.js')}}"></script>
+$('.clockpicker').clockpicker({
+	autoclose: true,
+    'default': 'now'
+});
 
-	<script src="{{asset('assets/admin/custom.min.js')}}"></script>
+$(document).ready(function(){
+    activaTab('home');
+});
+
+function activaTab(tab){
+    $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+};
+</script>
+
+

@@ -12,7 +12,13 @@ use App\Model\User;
 use App\Model\Farmer as Farmer;
 use App\Model\Category as Category;
 use App\Model\FarmerCategory;
+use App\Model\Country;
 use App\Model\Location;
+use App\Model\FarmerNonAvailibility as FarmerNA;
+use App\Model\FarmerWorkingHour as FarmerWH;
+use App\Model\FarmerAmenity;
+use App\Model\Amenity;
+use App\Model\FarmerBanner;
 use Session;
 use File;
 
@@ -149,15 +155,45 @@ class FarmerController extends Controller
         if(isset($catlist) && !empty($catlist))
         {$catListName = implode(', ', $catlist);}
         else{$catListName='';}
-        if(isset($row->farmerDetails->farmer_code) && !empty($row->farmerDetails->farmer_code))
-        {$farmer_code = $row->farmerDetails->farmer_code;}
-        else{$farmer_code='';}
+        $all_service_types = array('1' => 'Standard', '2' => 'Silver', '3' => 'Gold', null=>'');
+
+        $all_na = FarmerNA::where('user_id',$row->id)->select('start_date as start')->get()->toArray();
+
+        $days = ['monday'=>'Monday','tuesday'=>'Tuesday','wednesday'=>'Wednesday','thursday'=>'Thursday','friday'=>'Friday','saturday'=>'Saturday','sunday'=>'Sunday'];
+
+        if(FarmerWH::where('user_id',$row->id)->exists())
+        {
+                $farmer_wh = FarmerWH::where('user_id',$row->id)->get();
+                for($i=0;$i<$farmer_wh->count();$i++){
+                    //dd($farmer_wh[$i]->day_name);
+                    $keys = array_keys($days);
+                    $data[$i]['day_name']     = $days[$keys[$i]];
+                    $data[$i]['opening_time'] = date('H:i', strtotime($farmer_wh[$i]->opening_time));
+                    $data[$i]['closing_time'] = date('H:i', strtotime($farmer_wh[$i]->closing_time));
+                    $data[$i]['visitors']     = $farmer_wh[$i]->visitors;
+                }
+        }else{
+            $i=0;
+            foreach($days as $day){
+                    $data[$i]['day_name']     = $day;
+                    $data[$i]['opening_time'] = '10:00';
+                    $data[$i]['closing_time'] = '18:00';
+                    $data[$i]['visitors']     = '1';
+                    $i++;
+                }
+        }
         
-        
+        $user_selected_amenity = FarmerAmenity::select('amenity_id')->where('user_id',$row->id)->pluck('amenity_id')->toArray();
+        foreach ($user_selected_amenity as $value) {
+            $amenities[] = Amenity::where('status','1')->where('amenities.id',$value)->get();
+        }
+
+        $farmers_banners = FarmerBanner::select('name','description')->where('user_id',$row->id)->get()->toArray();
+
         if($row)
         {
-            $breadcum = [$title=>route('admin.'.$this->model.'.index'),$row->full_name=>''];
-            return view('admin.'.$this->model.'.view',compact('title','model','breadcum','row','catListName','farmer_code')); 
+            $breadcum = [$title=>route('admin.'.$this->model.'.index')];
+            return view('admin.'.$this->model.'.view',compact('title','model','breadcum','row','catListName','all_service_types','data','all_na','user_selected_amenity','amenities','farmers_banners')); 
         }
         else
         {
@@ -178,7 +214,7 @@ class FarmerController extends Controller
         try {
 
             $user = User::where('users.id',$id)->with(['farmerDetails','farmer_categories','locations'])->first();
-            
+            $countryData = Country::orderBy('sortname','asc')->pluck('sortname','phonecode');
 
             foreach ($user->farmer_categories as $key => $value) {
                 $selectedCatList[] = $value->category_id;
@@ -188,7 +224,9 @@ class FarmerController extends Controller
             }
             //$farmerDetails = Farmer::where('farmers.user_id','=', $user->id)->first();
             //$farmerDetails = User::find($id)->farmerDetails;
-            //dd($user->toArray());
+            
+            $all_service_types = array('1' => 'Standard', '2' => 'Silver', '3' => 'Gold');
+
             if($user)
             {
                 
@@ -197,7 +235,7 @@ class FarmerController extends Controller
                 $model=$this->model;
                 $categoryList = array_column($this->getCategoryList(), 'name','id');
 
-                return view('admin.'.$this->model.'.edit',compact('title','user','categoryList','breadcum','model','categoryList','selectedCatList'));
+                return view('admin.'.$this->model.'.edit',compact('title','user','categoryList','breadcum','model','categoryList','selectedCatList','countryData','all_service_types'));
             }
 
             else
@@ -226,7 +264,7 @@ class FarmerController extends Controller
     public function update(Request $request, $id)
     {
 
-        $user = User::where('users.id','=',$id)->first();
+        $user = User::where('id',$id)->first();
         $farmer =  Farmer::where('farmers.user_id','=',$id)->first();
         $location = Location::where('user_id',$user->id)->first();
 
@@ -237,23 +275,38 @@ class FarmerController extends Controller
                 'last_name'     => 'required|max:255',
                 //'email' => 'required|email|max:255|unique:users,email,' . $user->id,
                 'address'       => 'required|max:255',
+                'vat_number'    => 'required|max:50',
+                'cf'            => 'max:16',
                 'location_name' => 'max:255',
-                
+                'phonecode'     => 'required',
+                'latitude'      => 'required'
             ];
-            $validator = Validator::make($request->all(),$validatorRules);
+            $messages = [
+                'latitude.required'    => 'Invalid address.',
+            ];
+            
+            $validator = Validator::make($request->all(),$validatorRules,$messages);
             if ($validator->fails()) 
             {
                 return redirect()->back()->withInput()->withErrors($validator->errors());
             }
             else
             {
-                
+                // if(preg_match('/^[A-Z]{6}+[0-9]{2}+^[A-Z]{1}+[0-9]{2}+^[A-Z]{1}+[0-9]{3}+^[A-Z]{1}/', $request->cf)) {
+                //     echo 'valid';
+
+                // }
+                // else{
+                //     echo "invalid";
+                // }
+                //dd($request->all());
                 $previous_row = $user;
                 $full_name=$request->first_name.' '.$request->last_name;
                 $user->first_name=$request->first_name;
                 $user->last_name=$request->last_name;
                 $user->full_name=$full_name;
                 //$user->email=$request->email;
+                $user->phonecode=$request->phonecode;
                 $user->status=$request->status;
 
                 if($request->file('profile_pic'))
@@ -268,7 +321,8 @@ class FarmerController extends Controller
 
                     $user->image= $image;
                 }
-                
+                // print_r($request->phonecode);
+                // dd($user);
                 $user->save();
 
                 if($request->file('banner_image'))
@@ -284,8 +338,14 @@ class FarmerController extends Controller
                     $farmer->banner_image= $image;
                 }
 
-                $farmer->user_id = $user->id;
-                $farmer->description=$request->description;
+                $farmer->user_id             = $user->id;
+                $farmer->description         = $request->description;
+                $farmer->company_name        = $request->company_name?$request->company_name:null;
+                $farmer->vat_number          = $request->vat_number;
+                $farmer->cf                  = $request->cf?$request->cf:null;
+                $farmer->contract_start_date = $request->contract_start_date?$request->contract_start_date:null;
+                $farmer->contract_end_date   = $request->contract_end_date?$request->contract_end_date:null;
+                $farmer->service_type        = $request->service_type?$request->service_type:null;
 
                 $farmer->save();
 

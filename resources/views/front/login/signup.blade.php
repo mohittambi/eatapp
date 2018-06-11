@@ -30,44 +30,62 @@
                                         {!! Form::text('last_name', null, ['class'=>'form-control','placeholder'=>'Last Name','required'=>true]) !!}
                                     </div>
                                 </div>
+
+                                <div class="form-group clearfix">
+                                    <div class="col-sm-6 p-left0 mob_pad0 mob_bottm10">
+                                        <label>Company Name <span class="required">*</span></label>
+                                        {!! Form::text('company_name', null, ['class'=>'form-control','placeholder'=>'Company Name','required'=>true]) !!}
+                                    </div>
+                                    <div class="col-sm-6 p-right0 mob_pad0">
+                                        <label>Address <span class="required">*</span></label>
+                                        {!! Form::text('address', null, ['maxlength'=>'255','placeholder' => 'Address', 'required'=>true, 'class'=>'form-control', 'id'=>'autocomplete']) !!} 
+                                        {!! Form::hidden('latitude', null, ['class'=>'form-control', 'id'=>'latitude']) !!}
+                                        {!! Form::hidden('longitude', null, ['class'=>'form-control', 'id'=>'longitude']) !!}
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
+                                    <div class="col-sm-6 p-left0 mob_pad0 mob_bottm10">
                                     <label>Email Address <span class="required">*</span></label>
-                                    {!! Form::email('email', null, ['class'=>'form-control col-md-7 col-xs-12','placeholder'=>'Email','required'=>true]) !!}
+                                        {!! Form::email('email', null, ['class'=>'form-control col-md-7 col-xs-12','placeholder'=>'Email','required'=>true]) !!}
+                                    </div>
+                                    <div class="col-sm-6 p-right0 mob_pad0">
+                                        <label>Phone Number <span class="required">*</span></label>
+                                        <div class="input-group clearfix">
+                                            <div class="input-group-addon">
+                                                <select name="phonecode" class="form-control">
+                                                    <?php foreach($countryData as $key => $value){ ?>
+                                                    <option value="{{$key}}" <?= $key == '39' ? ' selected="selected"' : '';?>> {{$value .' (+'.$key.')'}}</option>
+                                                    <?php } ?>
+                                                </select>        
+                                            </div>
+                                                {!! Form::text('phone_number', null, ['required'=>true,'class'=>'form-control','placeholder'=>'Phone Number']) !!}
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <!-- <div class="form-group">
                                     <label>Location Name <small class="text-lowercase smallt">(if applicable)</small></label>
                                     {!! Form::text('location_name', null, ['maxlength'=>'255','placeholder' => 'Type Location Name', 'class'=>'form-control']) !!} 
                                 </div> -->
-                                <div class="form-group">
-                                    <label>Address <span class="required">*</span></label>
-                                    {!! Form::text('address', null, ['maxlength'=>'255','placeholder' => 'Address', 'required'=>true, 'class'=>'form-control', 'id'=>'autocomplete']) !!} 
-                                    {!! Form::hidden('latitude', null, ['class'=>'form-control', 'id'=>'latitude']) !!}
-                                    {!! Form::hidden('longitude', null, ['class'=>'form-control', 'id'=>'longitude']) !!}
-                                </div>
-                                    <div class="form-group clearfix">
-                                        <label>Phone Number</label>
-                                        <div class="input-group clearfix">
-                                            <div class="input-group-addon">
-                                                {!! Form::select('country_id', $countryList, null, ['class'=>'form-control','placeholder'=>'Country Name']) !!}        
-                                            </div>
-                                                {!! Form::text('phone_number', null, ['class'=>'form-control','placeholder'=>'Phone Number']) !!}
+                              
+                                    
+
+                                    <div class="form-group">
+                                        <div class="col-sm-6 p-left0 mob_pad0 mob_bottm10">
+                                            <label>Password <span class="required">*</span></label>
+                                            {!! Form::password('password', ['class'=>'form-control', 'placeholder'=>'Password','required'=>true]) !!}
+                                        </div>
+                                        <div class="col-sm-6 p-right0 mob_pad0">
+                                            <label>Confirm Password <span class="required">*</span></label>
+                                            {!! Form::password('confirm_password', ['class'=>'form-control', 'placeholder'=>'Confirm Password', 'required'=>true]) !!}
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label>Password <span class="required">*</span></label>
-                                        <!-- <input type="password" placeholder="Type Password" class="form-control"> -->
-                                        {!! Form::password('password', ['class'=>'form-control', 'placeholder'=>'Password','required'=>true]) !!}
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Confirm Password <span class="required">*</span></label>
-                                        {!! Form::password('confirm_password', ['class'=>'form-control', 'placeholder'=>'Confirm Password', 'required'=>true]) !!}
-                                    </div>
-
-                                    <div class="form-group">
+                                    <!-- <div class="form-group">
                                         <label>Description</label>
                                         {!! Form::textarea('description', null, ['class'=>'form-control', 'placeholder'=>'Description']) !!}
-                                    </div>
+                                    </div> -->
 
                                     <div class="submit text-center">
                                         <input type="submit"  value="Sign Up" class="btn btn-red submitbtn">

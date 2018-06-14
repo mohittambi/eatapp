@@ -19,7 +19,7 @@
                 <tr>
                   <th width="10%">Id</th>
                   <th width="25%">Name </th>
-                  <th width="30%">Email </th>
+                  <th width="30%">Content </th>
                   <th width="15%">Created At</th>
                   <th width="10%">Status</th>
                   <th width="10%" class="noneedtoshort">Action</th>
@@ -57,7 +57,7 @@ function changeStatus(id)
     },
       function(){
         jQuery.ajax({
-        url: '{{route('admin.farmers.status.update')}}',
+        url: '{{route('admin.frontPage.status.update')}}',
         type: 'POST',
         data:{id:id},
         headers: {
@@ -77,7 +77,7 @@ function changeStatus(id)
     serverSide: true,
     order: [[0, "desc" ]],
     "ajax":{
-      "url": '{!! route('admin.farmers.datatables') !!}',
+      "url": '{!! route('admin.frontPage.datatables') !!}',
       "dataType": "json",
       "type": "POST",
 
@@ -85,8 +85,8 @@ function changeStatus(id)
     },
     columns: [ 
       { data: 'id', name: 'id', orderable:true },
-      { data: 'full_name', name: 'full_name', orderable:true  },
-      { data: 'email', name: 'email', orderable:true},
+      { data: 'title', name: 'title', orderable:true  },
+      { data: 'content', name: 'content', orderable:true},
       { data: 'created_at', name: 'created_at', orderable:false },
       { data: 'status', name: 'status', orderable:false},
       { data: 'action', name: 'action', orderable:false }  
@@ -95,7 +95,7 @@ function changeStatus(id)
     { "searchable": false, "targets": 0 }
     ]
     ,language: {
-        searchPlaceholder: "Search by id, name or email"
+        searchPlaceholder: "Search by id, title or content"
     }
     });    
   });

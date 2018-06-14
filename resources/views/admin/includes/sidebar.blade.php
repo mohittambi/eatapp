@@ -54,6 +54,12 @@
                   <li><a href="{!! route('admin.amenities.add')!!}">Add Amenity</a></li>
                 </ul>
             </li>
+            <li><a><i class="fa fa-desktop"></i> Front Pages Manager <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                  <li><a href="{!! route('admin.frontPages.index')!!}">Front Pages</a></li>
+                  <li><a href="{!! route('admin.frontPages.add')!!}">Add Front Page</a></li>
+                </ul>
+            </li>
             <li><a><i class="fa fa-envelope"></i> Email Templates <span class="fa fa-chevron-down"></span></a>
                 <ul class="nav child_menu">
                   <li><a href="{!! route('admin.emailTemplates.index')!!}">Email Templates</a></li>

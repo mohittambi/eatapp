@@ -158,12 +158,19 @@ if ( ! function_exists('uploadwithresize'))
         $w= 100;
         $fileName = time().rand(111111111,9999999999).'.'.$file->getClientOriginalExtension();
         $destinationPath    = 'public/uploads/'.$path.'/';
+        //dd($destinationPath);
         // upload new image
-        Image::make($file->getRealPath())
+        $image = Image::make($file->getRealPath())
         // original
-        ->save($destinationPath.$fileName)
+        ->save($destinationPath.$fileName);
         // thumbnail
-        ->resize($w, $h)
+        //->resize($w, $h)
+        list($width, $height) = getimagesize($destinationPath.$fileName);
+        //$width=(int)($height*(2/3));
+        //$height=(int)($width*(3/2));
+        $ratio = (3/2);
+        Image::make($file->getRealPath())
+        ->resize($image->width(), intval($image->width() / $ratio))
         ->save($destinationPath.'thumb/'.$fileName)
         ->destroy();
         return $fileName;

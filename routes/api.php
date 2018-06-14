@@ -29,6 +29,8 @@ use Illuminate\Http\Request;
         Route::post('logout', 'UserController@logout'); 
         //user api's
         Route::get('get-countries', 'UserController@getCountries');
+        Route::get('get-categories', 'UserController@getCategories');
+        Route::post('get-banners', 'UserController@getBanners');
         Route::post('verify-for-signup-and-get-otp', 'UserController@verifyForSignupAndGetOtp');
         Route::post('sign-up', 'UserController@signup');
         Route::post('login', 'UserController@login');
@@ -39,14 +41,11 @@ use Illuminate\Http\Request;
         Route::post('update-password-by-phone-number', 'UserController@updatePasswordByPhoneNumber');
         Route::post('add-business-details', 'UserController@addBusinessDetails');
         Route::post('add-customer-details', 'UserController@addCustomerDetails');
-
+        Route::post('getCategoryId', 'UserController@getCategoryId');
         Route::post('switch-role', 'UserController@switchRole');
 
         Route::post('add-business-extra-details', 'UserController@addBusinessExtraDetails');
 
-
-
-          
 
          
     });

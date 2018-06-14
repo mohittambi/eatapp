@@ -19,7 +19,7 @@
                 <tr>
                   <th width="10%">Id</th>
                   <th width="25%">Name </th>
-                  <th width="30%">Description </th>
+                  <!-- <th width="30%">Description </th> -->
                   <th width="15%">Created At</th>
                   <th width="10%">Status</th>
                   <th width="10%" class="noneedtoshort">Action</th>
@@ -86,7 +86,7 @@ function changeStatus(id)
     columns: [ 
       { data: 'id', name: 'id', orderable:true },
       { data: 'name', name: 'name', orderable:true  },
-      { data: 'description', name: 'description', orderable:true},
+      //{ data: 'description', name: 'description', orderable:true},
       { data: 'created_at', name: 'created_at', orderable:false },
       { data: 'status', name: 'status', orderable:false},
       { data: 'action', name: 'action', orderable:false }  

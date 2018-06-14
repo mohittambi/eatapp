@@ -30,7 +30,7 @@
                         <?php echo \App\Lib\LanguageConvertor\Translator::languageFields("name","",["table"=>"categories","pk"=>0]); ?>
                       </div>
 
-                      <div class="form-group">
+                      <!-- <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">Description</label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                           {!! Form::textarea('description', null, ['class'=>'form-control col-md-7 col-xs-12','placeholder'=>'Description']) !!}                      
@@ -38,8 +38,8 @@
                       </div>
                       
                       <div class="form-group row">
-                        <?php echo \App\Lib\LanguageConvertor\Translator::languageFields("description","",["table"=>"categories","pk"=>0]); ?>
-                      </div>
+                        <?php //echo \App\Lib\LanguageConvertor\Translator::languageFields("description","",["table"=>"categories","pk"=>0]); ?>
+                      </div> -->
 
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="status">Status<span class="required">*</span>

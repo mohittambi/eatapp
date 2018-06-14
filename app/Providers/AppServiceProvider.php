@@ -6,6 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use App\Model\User;
 use App\Model\Farmer;
+use View;
+
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,9 +52,10 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
             return false;
-        });        
+        });
 
-         
+     
+
     }
 
     /**

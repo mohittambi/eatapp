@@ -12,6 +12,8 @@ use App\Model\Country;
 use App\Model\State;
 use App\Model\TruckCategory;
 use App\Model\Category;
+use App\Model\Setting;
+
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
@@ -90,7 +92,6 @@ class Controller extends BaseController
         return $list;
     }
     
-
    
 
 }

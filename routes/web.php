@@ -17,14 +17,41 @@
 });*/
 
 
-Route::post('/get-states-list', 'UserController@getStatesList')->name('front.get.statesList');
-
-
 //Route::get('/', function () {
 //    //return view('welcome');
 //    return view('front.home');
 //
 //});
+
+$this->group(['middleware'=>'FrontData'], function () {
+
+	$this->get('/terms-conditions',function () {
+		return View("front.page.front-template");
+	});
+	$this->get('/privacy-policy',function () {
+		return View("front.page.front-template");
+	});
+});
+
+$this->group(['namespace' => 'Front','middleware'=>'FarmerLoggedIn'], function () {
+	
+	$this->get('/settings', 'FrontController@editSettings')->name('front.page.settings');
+	$this->post('/settings', 'FrontController@updateSettings')->name('front.update.settings');
+	$this->post('/settings-amenity', 'FrontController@amenitySettings')->name('front.amenity.settings');
+	$this->post('/calendar-days', 'FrontController@updateNonAvailibilityDays')->name('front.calendar');
+	$this->post('/settings-banner', 'FrontController@bannerSettings')->name('front.banner.settings');
+
+	$this->get('/logout', 'FrontController@logout')->name('front.logout');
+
+	$this->get('/my-profile', 'FrontController@profile')->name('front.page.profile');
+	$this->post('/my-profile', 'FrontController@updateprofile')->name('front.post.profile');
+
+	$this->get('/change-password', 'FrontController@changePassword')->name('front.login.changePassword');
+	$this->post('/change-password', 'FrontController@postchangePassword')->name('front.post.changePassword');
+
+});
+
+// Route::post('/get-states-list', 'UserController@getStatesList')->name('front.get.statesList');
 $this->group(['namespace' => 'Front'], function () {
 	$this->post('/contact-form', 'FrontController@contactForm')->name('front.post.contactForm');
 	$this->get('/', 'FrontController@home')->name('front.home');
@@ -33,21 +60,6 @@ $this->group(['namespace' => 'Front'], function () {
 	$this->post('/signin', 'FrontController@makelogin')->name('front.post.signin');
 	$this->get('/signup', 'FrontController@signup')->name('front.login.signup');
 	$this->get('/forgot-password', 'FrontController@forgotPassword')->name('front.login.forgotPassword');
-	$this->get('/logout', 'FrontController@logout')->name('front.logout');
-
-	$this->get('/my-profile', 'FrontController@profile')->name('front.page.profile');
-	$this->post('/my-profile', 'FrontController@updateprofile')->name('front.post.profile');
-
-
-	$this->get('/settings', 'FrontController@editSettings')->name('front.page.settings');
-	$this->post('/settings', 'FrontController@updateSettings')->name('front.update.settings');
-	$this->post('/settings-amenity', 'FrontController@amenitySettings')->name('front.amenity.settings');
-	$this->post('/calendar-days', 'FrontController@updateNonAvailibilityDays')->name('front.calendar');
-	$this->post('/settings-banner', 'FrontController@bannerSettings')->name('front.banner.settings');
-
-	$this->get('/change-password', 'FrontController@changePassword')->name('front.login.changePassword');
-	$this->post('/change-password', 'FrontController@postchangePassword')->name('front.post.changePassword');
-	
 });
 
 
@@ -82,12 +94,6 @@ $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminLo
 	$this->post('/users/status-update', 'UserController@userStatusUpdate')->name('admin.users.status.update');	
 
 
-	// $this->get('/business', 'UserController@businessIndex')->name('business.index');
-	// $this->post('/business/datatables', 'UserController@businessListWithDatatable')->name('admin.business.datatables');
-	// $this->get('/business/{slug}', 'UserController@businessView')->name('admin.business.view');
-	// $this->get('/business/edit/{slug}', 'UserController@businessEdit')->name('admin.business.edit');
-	// $this->patch('/business/edit/{slug}', 'UserController@businessUpdate')->name('admin.business.update');
-
 	$this->get('/farmers', 'FarmerController@index')->name('admin.farmers.index');
 	$this->get('/farmers/add', 'FarmerController@create')->name('admin.farmers.add');
 	$this->post('/farmers/datatables', 'FarmerController@FarmerListWithDatatable')->name('admin.farmers.datatables');
@@ -107,9 +113,15 @@ $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminLo
 	$this->post('/amenities/edit/{id}', 'AmenitiesController@update')->name('admin.amenities.update');
 	$this->post('/amenities/delete/{id}', 'AmenitiesController@destroy')->name('admin.amenities.delete');
 	
-	// $this->resource('front-pages', 'FrontPagesController');
-	// $this->post('/front-pages/datatables', 'FrontPagesController@FarmerListWithDatatable')->name('admin.farmers.datatables');
-	// $this->post('/front-pages/status-update', 'FrontPagesController@FarmerStatusUpdate')->name('admin.farmers.status.update');
+	$this->get('/frontPages', 'FrontPagesController@index')->name('admin.frontPages.index');
+	$this->post('/frontPages/datatables', 'FrontPagesController@FrontPageListWithDatatable')->name('admin.frontPage.datatables');
+	$this->post('/frontPages/status-update', 'FrontPagesController@FrontPageStatusUpdate')->name('admin.frontPage.status.update');
+	$this->get('/frontPages/add', 'FrontPagesController@create')->name('admin.frontPages.add');
+	$this->post('/frontPages/add', 'FrontPagesController@store')->name('admin.frontPages.store');
+	$this->get('/frontPages/{id}', 'FrontPagesController@show')->name('admin.frontPages.view');
+	$this->get('/frontPages/edit/{id}', 'FrontPagesController@edit')->name('admin.frontPages.edit');
+	$this->post('/frontPages/edit/{id}', 'FrontPagesController@update')->name('admin.frontPages.update');
+	$this->post('/frontPages/delete/{id}', 'FrontPagesController@destroy')->name('admin.frontPages.delete');
 
 	$this->get('/categories', 'CategoryController@index')->name('admin.categories.index');
 	$this->get('/categories/add', 'CategoryController@create')->name('admin.categories.add');
@@ -158,9 +170,6 @@ $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminLo
 
 	$this->get('/subscribers/sendEmail/{user_id}/{email_template_sulg}', 'SubscriberController@sendEmail')->name('subscribers.sendEmail');
 	
-
-
-		
 });
 
 $this->group(['prefix' => 'admin', 'namespace' => 'Admin','middleware'=>'AdminBeforeLoggedIn'], function () {

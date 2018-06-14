@@ -77,11 +77,11 @@ class BannerController extends Controller
             if($request->file('cat_img'))
             {
                 $file = $request->file('cat_img');
-                $image = uploadwithresize($file,'users');
+                $image = uploadwithresize($file,'banners');
 
                 // if($previous_row->image)
                 // {
-                //     unlinkfile('users',$previous_row->image);
+                //     unlinkfile('banners',$previous_row->image);
                 // }
 
                 $row->image= $image;
@@ -196,11 +196,11 @@ class BannerController extends Controller
                 if($request->file('banner_img'))
                 {
                     $file = $request->file('banner_img');
-                    $image = uploadwithresize($file,'banner');
+                    $image = uploadwithresize($file,'banners');
 
                     if($previous_row->image)
                     {
-                        unlinkfile('banner',$previous_row->image);
+                        unlinkfile('banners',$previous_row->image);
                     }
 
                     $row->image= $image;

@@ -131,7 +131,7 @@
                 
                 <div class="row">
                   <div class="col-md-12">
-                    <label class="control-label" for="description">Description (Italian)</label>
+                    <!-- <label class="control-label" for="description">Description (Italian)</label> -->
                     <?php echo \App\Lib\LanguageConvertor\Translator::languageFields("description","",["table"=>"users","pk"=>$user->farmerDetails->user_id]); ?>
                   </div>
                 </div>

@@ -27,24 +27,25 @@ class FrontController extends Controller
 {
     public function __construct()
     {
-        $settings = Setting::where('status','1')->get();
-		foreach($settings as $setting => $value){
-			$this->settingValue[$value->slug] = $value->description;
-		}
+        // $settings = Setting::where('status','1')->get();
+		// foreach($settings as $setting => $value){
+		// 	$this->settingValue[$value->slug] = $value->description;
+		// }
     }
+
 
     public function home(){
 
         $title= 'EATAPP | Home'; 
         $breadcrumb = ['EatApp'=>''];
-		$settingValue = $this->settingValue;
+		//$settingValue = $this->settingValue;
 
         if($user = Auth::user())
         {
             $id = Auth::user()->id;
             $user = User::find($id);
         }
-        return view('front.home',compact('title','row','breadcrumb','user','settingValue'));
+        return view('front.home',compact('title','row','breadcrumb','user'));
     }
 
     public function signup()
@@ -56,9 +57,9 @@ class FrontController extends Controller
         $breadcrumb = ['EatApp'=>''];
         //$countryList = array_column($this->getCountryList(), 'name','id');
         $countryData = Country::orderBy('sortname','asc')->pluck('sortname','phonecode');
-		$settingValue = $this->settingValue;
+		//$settingValue = $this->settingValue;
 		
-        return view('front.login.signup',compact('title','row','breadcrumb','settingValue','countryData'));
+        return view('front.login.signup',compact('title','row','breadcrumb','countryData'));
     }
 
     public function signin()
@@ -68,9 +69,9 @@ class FrontController extends Controller
         }
     	$title= 'EATAPP | SignIn';
         $breadcrumb = ['EatApp'=>''];
-		$settingValue = $this->settingValue;
+		//$settingValue = $this->settingValue;
 		
-        return view('front.login.signin',compact('title','row','breadcrumb','settingValue'));
+        return view('front.login.signin',compact('title','row','breadcrumb'));
     }
 
     public function makelogin(Request $request)
@@ -141,9 +142,9 @@ class FrontController extends Controller
 
         $title= 'EATAPP | ForgotPassword';
         $breadcrumb = ['EatApp'=>''];
-		$settingValue = $this->settingValue;
+		//$settingValue = $this->settingValue;
 		
-        return view('front.login.forgotPassword',compact('title','breadcrumb','settingValue'));
+        return view('front.login.forgotPassword',compact('title','breadcrumb'));
     }
 
     public function contactForm(Request $request)
@@ -198,7 +199,7 @@ class FrontController extends Controller
         
         $title= 'EATAPP | My Profile';
         $breadcrumb = ['EatApp'=>'','My Profile'=>''];
-		$settingValue = $this->settingValue;
+		//$settingValue = $this->settingValue;
         $countryData = Country::orderBy('sortname','asc')->pluck('sortname','phonecode');
         //$countryList = array_column($this->getCountryList(), 'sortname','phonecode');
         $categoryList = array_column($this->getCategoryList(), 'name','id');
@@ -212,7 +213,7 @@ class FrontController extends Controller
 			$selectedCatList[] ='';
 		}
 
-        return view('front.page.profile',compact('title','userDetails','breadcrumb','categoryList','selectedCatList','settingValue','countryData'));
+        return view('front.page.profile',compact('title','userDetails','breadcrumb','categoryList','selectedCatList','countryData'));
     }
 
     public function updateprofile(Request $request)
@@ -338,7 +339,7 @@ class FrontController extends Controller
         
         $title= 'EATAPP | My Settings';
         $breadcrumb = ['EatApp'=>'','My Settings'=>''];
-        $settingValue = $this->settingValue;
+        //$settingValue = $this->settingValue;
         
         $all_na = FarmerNA::where('user_id',$userDetails->id)->select('start_date as start','title')->get()->toJson();
         $days = ['monday'=>'Monday','tuesday'=>'Tuesday','wednesday'=>'Wednesday','thursday'=>'Thursday','friday'=>'Friday','saturday'=>'Saturday','sunday'=>'Sunday'];
@@ -371,7 +372,7 @@ class FrontController extends Controller
         $farmers_banners = FarmerBanner::select('name','description')->where('user_id',$userDetails->id)->pluck('name')->toArray();
         $farmers_banners_desc = FarmerBanner::select('description')->where('user_id',$userDetails->id)->pluck('description')->toArray();
 
-        return view('front.page.settings',compact('title','data','breadcrumb','settingValue','all_na','days','all_amenities','user_selected_amenity','userDetails','farmers_banners','farmers_banners_desc','farmers_images'));
+        return view('front.page.settings',compact('title','data','breadcrumb','all_na','days','all_amenities','user_selected_amenity','userDetails','farmers_banners','farmers_banners_desc','farmers_images'));
     }
 
     public function updateNonAvailibilityDays(Request $request)
@@ -525,11 +526,11 @@ class FrontController extends Controller
     {
         $title= 'EATAPP | Change Password';
         $breadcrumb = ['EatApp'=>'','Change Password'=>''];
-        $settingValue = $this->settingValue;
+        //$settingValue = $this->settingValue;
         $user_slug  = Auth::user()->slug;
         $user = User::where('slug',$user_slug)->where('role','F')->where('verified','1')->where('status','1')->first();
 
-        return view('front.page.changePassword',compact('title','user','breadcrumb','settingValue'));
+        return view('front.page.changePassword',compact('title','user','breadcrumb'));
     }
 
     public function postchangePassword(Request $request)

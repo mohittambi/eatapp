@@ -19,15 +19,15 @@
                       <div class="profile_img">
                         <div id="crop-avatar">
                           <!-- Current avatar -->
-                          <img class="img-responsive avatar-view" src="{{ $row->image?asset('public/uploads/users/thumb/'.$row->image.''):asset('images/user.png') }}" alt="Avatar" title="Change the avatar">
+                          <img class="img-responsive avatar-view" src="{{ $row->image?asset('public/uploads/categories/thumb/'.$row->image.''):asset('images/user.png') }}" alt="Avatar" title="Change the avatar">
                         </div>
                       </div>
                       <h3>{!! ucfirst($row->name) !!}</h3>
 
                       <ul class="list-unstyled user_data">
                       
-                        <li> <b>Description:</b> {!! $row->description !!}
-                        </li>
+                        <!-- <li> <b>Description:</b> {!! $row->description !!}
+                        </li> -->
 
                         <li> <b>Created At:</b> {!! date('d-m-Y H:i A',strtotime($row->created_at)) !!}
                         </li>

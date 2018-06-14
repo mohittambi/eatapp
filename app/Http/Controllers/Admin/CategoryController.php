@@ -77,11 +77,11 @@ class CategoryController extends Controller
             if($request->file('cat_img'))
             {
                 $file = $request->file('cat_img');
-                $image = uploadwithresize($file,'users');
+                $image = uploadwithresize($file,'categories');
 
                 // if($previous_row->image)
                 // {
-                //     unlinkfile('users',$previous_row->image);
+                //     unlinkfile('categories',$previous_row->image);
                 // }
 
                 $row->image= $image;
@@ -195,11 +195,11 @@ class CategoryController extends Controller
                 if($request->file('cat_img'))
                 {
                     $file = $request->file('cat_img');
-                    $image = uploadwithresize($file,'users');
+                    $image = uploadwithresize($file,'categories');
 
                     if($previous_row->image)
                     {
-                        unlinkfile('users',$previous_row->image);
+                        unlinkfile('categories',$previous_row->image);
                     }
 
                     $row->image= $image;

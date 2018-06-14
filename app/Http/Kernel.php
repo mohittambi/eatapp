@@ -38,8 +38,6 @@ class Kernel extends HttpKernel
         'AdminBeforeLoggedIn'=>[\App\Http\Middleware\AdminBeforeLoggedIn::class],
         'AdminLoggedIn'=>[\App\Http\Middleware\AdminLoggedIn::class],
         'FarmerLoggedIn'=>[\App\Http\Middleware\FarmerLoggedIn::class],
-        
-
         'BeforeCompanyLoggedIn'=>[\App\Http\Middleware\BeforeCompanyLoggedIn::class],
         'CompanyLoggedIn'=>[\App\Http\Middleware\CompanyLoggedIn::class],
         'RevalidateBackHistory'=>[\App\Http\Middleware\RevalidateBackHistory::class],
@@ -68,5 +66,6 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'jwt.auth' => \App\Http\Middleware\VerifyJWTToken::class,
+        'FrontData'=> \App\Http\Middleware\FrontData::class,
     ];
 }

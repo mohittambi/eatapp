@@ -7,9 +7,9 @@ use Auth;
 class FarmerLoggedIn{
     public function handle($request, Closure $next){
        
-        if( {{Auth::user()->role }} == 'F')
+        if( isset(Auth::user()->role) && !empty(Auth::user()->role) )
         {
-
+            if(Auth::user()->role=='F')
             return $next($request);
         }
         else

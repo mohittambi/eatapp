@@ -16,7 +16,11 @@ use App\Model\Customer;
 use App\Model\UserDevice;
 use App\Model\SocialAccount;
 use App\Model\Farmer;
-
+use App\Model\Category;
+use App\Model\Banner;
+use App\Model\FarmerBanner;
+use App\Model\FarmerCategory;
+use App\Model\Location;
 class UserController extends Controller
 {   
 
@@ -607,8 +611,6 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
                         'email' => 'email',
-                        
-                        
                     ]);
         if ($validator->fails()) 
         {
@@ -650,6 +652,138 @@ class UserController extends Controller
     public function getCountries()
     {
          return response()->json(['status'=>true,'message'=>'Listing.','data'=>$this->getCountryList()]);
+    }
+
+    public function getCategories()
+    {
+        $categories = Category::where('status','1')->orderBy('name','asc')->get();
+        $i=0;
+        foreach($categories as $category){
+            $data[$i]['name'] = $category['name'];
+            if(isset($category["image"])&&!empty($category["image"])){
+                $data[$i]['image'] = asset('public/uploads/categories/thumb/'.$category["image"]);
+            }else{$data[$i]['image'] ='';}
+            $data[$i]['id'] = $category['id'];
+            $i++;
+        }
+        return response()->json(['status'=>true,'message'=>'Categories listing.','data'=>$data]);
+    }
+
+    public function getBanners(Request $request)
+    {
+
+        if(isset($request->user_id) && !empty($request->user_id)){
+            $validator = Validator::make($request->all(), [
+                            'user_id' => 'numeric',
+                        ]);
+            if ($validator->fails()) 
+            {
+                $error = $this->validationHandle($validator->messages()); 
+                return response()->json(['status'=>false,'message'=>$error]);
+            }
+            else
+            {
+                $farmer_banners = FarmerBanner::where('user_id', $request->user_id)->get();
+                
+                if(FarmerBanner::where('user_id', $request->user_id)->exists())
+                {
+                    $i=0;
+                    foreach($farmer_banners as $farmer_banner){
+                        if(isset($farmer_banner['description'])&&!empty($farmer_banner['description'])){
+                            $data[$i]['description'] = $farmer_banner['description'];
+                        }else{$data[$i]['description'] ='';}
+                        if(isset($farmer_banner["name"])&&!empty($farmer_banner["name"])){
+                            $data[$i]['name'] = asset('public/uploads/farmers-banners/thumb/'.$farmer_banner["name"]);
+                        }else{$data[$i]['name'] ='';}
+                        $i++;
+                    }
+                    return response()->json(['status'=>true,'message'=>'Banners list with images and description.','data'=>$data]);
+                    
+                }
+                else
+                {
+                    return response()->json(['status'=>false,'message'=>'Farmer banner does not exist.']);
+                }
+
+            }
+        }else{
+            $banners = Banner::where('status','1')->orderBy('name','asc')->get();
+            $i=0;
+            foreach($banners as $banner){
+                $data[$i]['name'] = $banner['name'];
+                if(isset($banner["image"])&&!empty($banner["image"])){
+                    $data[$i]['image'] = asset('public/uploads/banners/thumb/'.$banner["image"]);
+                }else{$data[$i]['image'] ='';}
+                $i++;
+            }
+            return response()->json(['status'=>true,'message'=>'Banners listing.','data'=>$data]);
+        }
+    }
+
+    public function getCategoryId(Request $request)
+    {
+        $user_id_list = FarmerCategory::where('category_id',$request->category_id)->select('user_id')->get()->toArray();
+        foreach ($user_id_list as $user_ids) {
+            $user_id[] = $user_ids['user_id'];
+        }
+        for($i=0;$i<count($user_id);$i++) {
+            $row = User::where('id',$user_id[$i])
+                    ->first();
+            $user[] =  $this->getFarmerdetailfromObjectArray($row);
+                    
+        }
+        $data = $user;
+        return response()->json(['status'=>true,'message'=>'Users details with given category.','data'=>$data]);
+    }
+
+    public function getFarmerdetailfromObjectArray($row)
+    {
+
+        $user = [];
+        if($row->role == 'F')
+        {
+            //echo $row->id;  die;
+            $farmer     = Farmer::where('user_id',$row->id)->first();
+            $location   = Location::where('user_id',$row->id)->first();
+
+            $user = (object)array(
+            'user_id'           => (int)$row->id,
+            'first_name'        => $row->first_name,
+            'last_name'         => $row->last_name,
+            'full_name'         => $row->full_name,
+            'email'             => $row->email,
+            'country_id'        => $row->country_id?(int)$row->country_id:'',
+            //'country_name'      => $row->getRelatedCountry->name,
+            'phonecode'         => $row->phonecode,
+            'phone_number'      => $row->phone_number,
+            'profile_pic'       => $row->image?$this->uploadsfolder.'/farmers/'.$row->image:asset('images/user.png'),
+            'profile_pic_thumb' => $row->image?$this->uploadsfolder.'/farmers/thumb/'.$row->image:asset('images/user.png'),
+            'verified'          => (int)$row->verified,
+            'status'            => (int)$row->status,
+            //'dob'               => date('d-m-Y',strtotime($row->dob)),
+            'created_at'        => strtotime($row->created_at), 
+            );
+
+            $user->description          = $farmer->description;
+            $user->farmer_code          = $farmer->farmer_code;
+            $user->company_name         = $farmer->company_name?$farmer->company_name:'';
+            $user->vat_number           = $farmer->vat_number?$farmer->vat_number:'';
+            $user->cf                   = $farmer->cf?$farmer->cf:'';
+            $user->contract_start_date  = $farmer->contract_start_date?$farmer->contract_start_date:'';
+            $user->contract_end_date    = $farmer->contract_end_date?$farmer->contract_end_date:'';
+            $user->service_type         = $farmer->service_type?$farmer->service_type:'';
+
+            $user->address              = $location->address;
+            $user->latitude             = $location->latitude;
+            $user->longitude            = $location->longitude;
+        }
+        else
+        {
+            if($row->role == 'F'){
+                $user['message'] = 'Invalid username or password.';
+            }
+        }
+        return $user;
     }
 
 
